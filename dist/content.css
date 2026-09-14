@@ -5,11 +5,29 @@
   --ai-solver-font: 'Outfit', sans-serif;
 }
 
-body.ai-font-outfit, .ai-font-outfit { --ai-solver-font: 'Outfit', sans-serif !important; }
-body.ai-font-jakarta, .ai-font-jakarta { --ai-solver-font: 'Plus Jakarta Sans', sans-serif !important; }
-body.ai-font-manrope, .ai-font-manrope { --ai-solver-font: 'Manrope', sans-serif !important; }
-body.ai-font-space-grotesk, .ai-font-space-grotesk { --ai-solver-font: 'Space Grotesk', sans-serif !important; }
-body.ai-font-inter, .ai-font-inter { --ai-solver-font: 'Inter', sans-serif !important; }
+body.ai-font-outfit, html.ai-font-outfit, .ai-font-outfit { --ai-solver-font: 'Outfit', sans-serif !important; }
+body.ai-font-jakarta, html.ai-font-jakarta, .ai-font-jakarta { --ai-solver-font: 'Plus Jakarta Sans', sans-serif !important; }
+body.ai-font-manrope, html.ai-font-manrope, .ai-font-manrope { --ai-solver-font: 'Manrope', sans-serif !important; }
+body.ai-font-space-grotesk, html.ai-font-space-grotesk, .ai-font-space-grotesk { --ai-solver-font: 'Space Grotesk', sans-serif !important; }
+body.ai-font-inter, html.ai-font-inter, .ai-font-inter { --ai-solver-font: 'Inter', sans-serif !important; }
+
+/* Force font on all FormIQ UI elements and their descendants */
+.ai-solver-btn-wrapper,
+.ai-solver-solve-btn,
+.ai-solver-solve-btn *,
+.ai-solver-card,
+.ai-solver-card *,
+.ai-solver-floating-bar,
+.ai-solver-floating-bar *,
+.ai-solver-solve-all-btn,
+.ai-solver-solve-all-btn *,
+.ai-solver-action-btn,
+.ai-solver-action-btn *,
+.ai-solver-error-card,
+.ai-solver-error-card * {
+  font-family: var(--ai-solver-font, 'Outfit', sans-serif) !important;
+}
+
 /* 1. Question Action Button (Light Theme) */
 .ai-solver-btn-wrapper {
   display: flex;
@@ -29,7 +47,7 @@ body.ai-font-inter, .ai-font-inter { --ai-solver-font: 'Inter', sans-serif !impo
   padding: 6px 14px;
   font-size: 12.5px;
   font-weight: 600;
-  font-family: var(--ai-solver-font, 'Outfit', sans-serif);
+  font-family: var(--ai-solver-font, 'Outfit', sans-serif) !important;
   border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -239,7 +257,7 @@ body.ai-font-inter, .ai-font-inter { --ai-solver-font: 'Inter', sans-serif !impo
   padding: 5px 10px;
   font-size: 11.5px;
   font-weight: 600;
-  font-family: inherit;
+  font-family: var(--ai-solver-font, 'Outfit', sans-serif) !important;
   border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
@@ -271,7 +289,7 @@ body.ai-font-inter, .ai-font-inter { --ai-solver-font: 'Inter', sans-serif !impo
   gap: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
   z-index: 99999;
-  font-family: var(--ai-solver-font, 'Outfit', sans-serif);
+  font-family: var(--ai-solver-font, 'Outfit', sans-serif) !important;
   animation: ai-solver-dock-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   -webkit-font-smoothing: antialiased;
 }
@@ -305,7 +323,7 @@ body.ai-font-inter, .ai-font-inter { --ai-solver-font: 'Inter', sans-serif !impo
   padding: 6px 14px;
   font-size: 12px;
   font-weight: 600;
-  font-family: inherit;
+  font-family: var(--ai-solver-font, 'Outfit', sans-serif) !important;
   border-radius: 20px;
   cursor: pointer;
   display: inline-flex;

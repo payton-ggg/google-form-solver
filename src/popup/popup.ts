@@ -45,9 +45,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Real-time font change
   if (fontSelect) {
-    fontSelect.addEventListener('change', () => {
+    fontSelect.addEventListener('change', async () => {
       const selectedFont = fontSelect.value as SupportedFont;
       applyFont(selectedFont);
+      await saveSettings({ fontFamily: selectedFont });
     });
   }
 

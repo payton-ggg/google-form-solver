@@ -13,10 +13,42 @@ import { SupportedFont } from '../types';
 
 console.log('🚀 [FormIQ Assistant] Content script initialized.');
 
-function applyFontClass(font: SupportedFont) {
+function injectGoogleFonts() {
+  const fontId = 'formiq-google-fonts';
+  if (!document.getElementById(fontId)) {
+    const link = document.createElement('link');
+    link.id = fontId;
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap';
+    (document.head || document.documentElement).appendChild(link);
+  }
+}
+
+const FONT_MAP: Record<string, string> = {
+  'outfit': "'Outfit', sans-serif",
+  'jakarta': "'Plus Jakarta Sans', sans-serif",
+  'manrope': "'Manrope', sans-serif",
+  'space-grotesk': "'Space Grotesk', sans-serif",
+  'inter': "'Inter', sans-serif",
+};
+
+function applyFontClass(font?: SupportedFont | string) {
+  const chosen = (font as SupportedFont) || 'outfit';
   const fontClasses = ['ai-font-outfit', 'ai-font-jakarta', 'ai-font-manrope', 'ai-font-space-grotesk', 'ai-font-inter'];
-  fontClasses.forEach((cls) => document.body.classList.remove(cls));
-  document.body.classList.add(`ai-font-${font || 'outfit'}`);
+  
+  fontClasses.forEach((cls) => {
+    document.body?.classList.remove(cls);
+    document.documentElement.classList.remove(cls);
+  });
+
+  document.body?.classList.add(`ai-font-${chosen}`);
+  document.documentElement.classList.add(`ai-font-${chosen}`);
+
+  const fontStyle = FONT_MAP[chosen] || FONT_MAP['outfit'];
+  document.documentElement.style.setProperty('--ai-solver-font', fontStyle);
+  if (document.body) {
+    document.body.style.setProperty('--ai-solver-font', fontStyle);
+  }
 }
 
 async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, index: number) {
@@ -103,11 +135,14 @@ async function scanAndAttach() {
   }
 }
 
+// Inject Google Fonts tag into page head
+injectGoogleFonts();
+
 // Listen to dynamic font changes from storage
 if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync' && changes.fontFamily) {
-      applyFontClass(changes.fontFamily.newValue);
+  chrome.storage.onChanged.addListener((changes) => {
+    if (changes.fontFamily) {
+      applyFontClass(changes.fontFamily.newValue as SupportedFont);
     }
   });
 }
@@ -120,7 +155,16 @@ const observer = new MutationObserver(() => {
   scanAndAttach();
 });
 
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+if (document.body) {
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+} else {
+  document.addEventListener('DOMContentLoaded', () => {
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  });
+}
