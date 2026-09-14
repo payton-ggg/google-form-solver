@@ -5,11 +5,14 @@ export type GeminiModel =
   | 'gemini-2.5-pro'
   | 'gemini-1.5-flash';
 
+export type SupportedFont = 'outfit' | 'jakarta' | 'manrope' | 'space-grotesk' | 'inter';
+
 export interface ExtensionSettings {
   apiKey: string;
   model: GeminiModel;
   autoScroll: boolean;
   language: 'auto' | 'ru' | 'en';
+  fontFamily: SupportedFont;
 }
 
 export type QuestionType = 'radio' | 'checkbox' | 'text' | 'paragraph' | 'dropdown' | 'unknown';

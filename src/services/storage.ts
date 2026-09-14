@@ -5,6 +5,7 @@ const DEFAULT_SETTINGS: ExtensionSettings = {
   model: 'gemini-3.6-flash',
   autoScroll: true,
   language: 'auto',
+  fontFamily: 'outfit',
 };
 
 export async function getSettings(): Promise<ExtensionSettings> {

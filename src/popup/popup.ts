@@ -1,12 +1,13 @@
 import { getSettings, saveSettings } from '../services/storage';
 import { testGeminiApiKey } from '../services/gemini';
-import { GeminiModel } from '../types';
+import { GeminiModel, SupportedFont } from '../types';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const apiKeyInput = document.getElementById('apiKey') as HTMLInputElement;
   const toggleApiKeyBtn = document.getElementById('toggleApiKey') as HTMLButtonElement;
   const eyeIcon = document.getElementById('eyeIcon') as unknown as SVGElement;
   const modelSelect = document.getElementById('modelSelect') as HTMLSelectElement;
+  const fontSelect = document.getElementById('fontSelect') as HTMLSelectElement;
   const languageSelect = document.getElementById('languageSelect') as HTMLSelectElement;
   const autoScrollCheck = document.getElementById('autoScrollCheck') as HTMLInputElement;
   const testBtn = document.getElementById('testBtn') as HTMLButtonElement;
@@ -18,6 +19,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const statusIndicator = document.getElementById('statusIndicator') as HTMLElement;
   const statusText = document.getElementById('statusText') as HTMLElement;
 
+  function applyFont(font: SupportedFont) {
+    document.body.className = `font-${font}`;
+  }
+
   // Load existing settings
   const settings = await getSettings();
   if (apiKeyInput && settings.apiKey) {
@@ -26,11 +31,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (modelSelect && settings.model) {
     modelSelect.value = settings.model;
   }
+  if (fontSelect && settings.fontFamily) {
+    fontSelect.value = settings.fontFamily;
+  }
+  applyFont(settings.fontFamily || 'outfit');
+
   if (languageSelect && settings.language) {
     languageSelect.value = settings.language;
   }
   if (autoScrollCheck && typeof settings.autoScroll === 'boolean') {
     autoScrollCheck.checked = settings.autoScroll;
+  }
+
+  // Real-time font change
+  if (fontSelect) {
+    fontSelect.addEventListener('change', () => {
+      const selectedFont = fontSelect.value as SupportedFont;
+      applyFont(selectedFont);
+    });
   }
 
   // Check active tab URL
@@ -40,12 +58,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (tab?.url && tab.url.includes('docs.google.com/forms')) {
         statusIndicator.style.background = 'rgba(16, 185, 129, 0.15)';
         statusIndicator.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-        statusIndicator.style.color = '#34d399';
+        statusIndicator.style.color = '#059669';
         statusText.textContent = 'Google Forms активна';
       } else {
         statusIndicator.style.background = 'rgba(148, 163, 184, 0.15)';
         statusIndicator.style.borderColor = 'rgba(148, 163, 184, 0.3)';
-        statusIndicator.style.color = '#94a3b8';
+        statusIndicator.style.color = '#64748b';
         statusText.textContent = 'Откройте Google Форму';
       }
     } catch {
@@ -99,6 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await saveSettings({
           apiKey: key,
           model,
+          fontFamily: (fontSelect?.value as SupportedFont) || 'outfit',
           language: languageSelect.value as any,
           autoScroll: autoScrollCheck.checked,
         });
@@ -115,12 +134,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   saveBtn.addEventListener('click', async () => {
     const key = apiKeyInput.value.trim();
     const model = modelSelect.value as GeminiModel;
+    const fontFamily = (fontSelect?.value as SupportedFont) || 'outfit';
     const language = languageSelect.value as any;
     const autoScroll = autoScrollCheck.checked;
 
     await saveSettings({
       apiKey: key,
       model,
+      fontFamily,
       language,
       autoScroll,
     });

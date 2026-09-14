@@ -1,7 +1,17 @@
-/* Modern AI Forms Assistant Styles (Linear / Raycast / Apple inspired modern aesthetic) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Modern AI Forms Assistant Styles (Crisp Modern Light Theme with Custom Fonts) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 
-/* 1. Question Action Button */
+:root {
+  --ai-solver-font: 'Outfit', sans-serif;
+}
+
+body.ai-font-outfit, .ai-font-outfit { --ai-solver-font: 'Outfit', sans-serif !important; }
+body.ai-font-jakarta, .ai-font-jakarta { --ai-solver-font: 'Plus Jakarta Sans', sans-serif !important; }
+body.ai-font-manrope, .ai-font-manrope { --ai-solver-font: 'Manrope', sans-serif !important; }
+body.ai-font-space-grotesk, .ai-font-space-grotesk { --ai-solver-font: 'Space Grotesk', sans-serif !important; }
+body.ai-font-inter, .ai-font-inter { --ai-solver-font: 'Inter', sans-serif !important; }
+
+/* 1. Question Action Button (Light Theme) */
 .ai-solver-btn-wrapper {
   display: flex;
   justify-content: flex-end;
@@ -14,36 +24,37 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #0f172a;
-  color: #f8fafc !important;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #ffffff;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1;
   padding: 6px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: var(--ai-solver-font, 'Outfit', sans-serif);
   border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
   -webkit-font-smoothing: antialiased;
 }
 
 .ai-solver-solve-btn:hover {
-  background: #1e293b;
+  background: #f8fafc;
+  border-color: #94a3b8;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
-  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .ai-solver-solve-btn:active {
   transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .ai-solver-solve-btn.loading {
-  background: #334155;
-  color: #94a3b8 !important;
+  background: #f1f5f9;
+  color: #64748b !important;
+  border-color: #cbd5e1;
   cursor: wait;
   transform: none;
 }
@@ -67,24 +78,24 @@
   height: 18px;
   border-radius: 4px;
   object-fit: cover;
-  box-shadow: 0 0 8px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.3);
 }
 
 .ai-solver-icon {
-  color: #94a3b8;
+  color: #64748b;
   transition: color 0.2s;
 }
 
 .ai-solver-solve-btn:hover .ai-solver-icon {
-  color: #60a5fa;
+  color: #2563eb;
 }
 
 .ai-solver-spinner {
   width: 12px;
   height: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(15, 23, 42, 0.2);
   border-radius: 50%;
-  border-top-color: #60a5fa;
+  border-top-color: #2563eb;
   animation: ai-solver-spin 0.7s linear infinite;
   display: inline-block;
 }
@@ -93,7 +104,7 @@
   to { transform: rotate(360deg); }
 }
 
-/* 2. Modern Explanation Card */
+/* 2. Modern Explanation Card (Light Theme) */
 .ai-solver-card {
   margin-top: 14px;
   background: #ffffff;
@@ -101,10 +112,10 @@
   border-radius: 12px;
   padding: 16px 18px;
   color: #0f172a;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 13px;
+  font-family: var(--ai-solver-font, 'Outfit', sans-serif);
+  font-size: 13.5px;
   line-height: 1.6;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
   animation: ai-solver-slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   -webkit-font-smoothing: antialiased;
@@ -134,8 +145,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 600;
-  font-size: 13px;
+  font-weight: 700;
+  font-size: 13.5px;
   color: #0f172a;
 }
 
@@ -201,7 +212,7 @@
 .ai-solver-selected-answer-value {
   color: #0f172a;
   font-weight: 600;
-  font-size: 13.5px;
+  font-size: 14px;
 }
 
 .ai-solver-explanation-body {
@@ -228,7 +239,7 @@
   color: #475569;
   padding: 5px 10px;
   font-size: 11.5px;
-  font-weight: 500;
+  font-weight: 600;
   font-family: inherit;
   border-radius: 6px;
   cursor: pointer;
@@ -245,23 +256,23 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* 3. Floating Modern Island Dock */
+/* 3. Floating Modern Island Dock (Light Theme) */
 .ai-solver-floating-bar {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  background: rgba(15, 23, 42, 0.94);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid #e2e8f0;
   border-radius: 30px;
   padding: 6px 14px 6px 16px;
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
   z-index: 99999;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--ai-solver-font, 'Outfit', sans-serif);
   animation: ai-solver-dock-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   -webkit-font-smoothing: antialiased;
 }
@@ -281,17 +292,17 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #f8fafc;
-  font-weight: 600;
-  font-size: 12.5px;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 13.5px;
   padding-right: 8px;
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  border-right: 1px solid #e2e8f0;
 }
 
 .ai-solver-solve-all-btn {
   background: #2563eb;
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid #2563eb;
   padding: 6px 14px;
   font-size: 12px;
   font-weight: 600;
@@ -301,14 +312,15 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ai-solver-solve-all-btn:hover {
   background: #1d4ed8;
+  border-color: #1d4ed8;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
 }
 
 .ai-solver-solve-all-btn:active {
@@ -316,7 +328,8 @@
 }
 
 .ai-solver-solve-all-btn:disabled {
-  background: #334155;
+  background: #cbd5e1;
+  border-color: #cbd5e1;
   color: #64748b;
   cursor: not-allowed;
   transform: none;
@@ -326,7 +339,7 @@
 .ai-solver-progress-bar-container {
   width: 80px;
   height: 4px;
-  background: rgba(255, 255, 255, 0.15);
+  background: #e2e8f0;
   border-radius: 4px;
   overflow: hidden;
   display: none;
@@ -335,25 +348,25 @@
 .ai-solver-progress-bar-fill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #60a5fa, #38bdf8);
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
   transition: width 0.2s ease;
 }
 
-/* Modern Scroll Toggle Switch */
+/* Modern Scroll Toggle Switch (Light Theme) */
 .ai-solver-scroll-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 11.5px;
-  font-weight: 500;
-  color: #cbd5e1;
+  font-weight: 600;
+  color: #475569;
   cursor: pointer;
   user-select: none;
   transition: color 0.15s;
 }
 
 .ai-solver-scroll-toggle:hover {
-  color: #ffffff;
+  color: #0f172a;
 }
 
 .ai-solver-scroll-toggle input[type="checkbox"] {
@@ -361,7 +374,7 @@
   -webkit-appearance: none;
   width: 28px;
   height: 16px;
-  background: #334155;
+  background: #cbd5e1;
   border-radius: 16px;
   position: relative;
   cursor: pointer;
@@ -379,6 +392,7 @@
   height: 12px;
   background: #ffffff;
   border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s;
 }
 
@@ -393,7 +407,7 @@
 .ai-solver-floating-close {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: #94a3b8;
   cursor: pointer;
   padding: 4px;
   border-radius: 50%;
@@ -404,8 +418,8 @@
 }
 
 .ai-solver-floating-close:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  color: #0f172a;
+  background: #f1f5f9;
 }
 
 /* Error Card */

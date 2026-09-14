@@ -9,8 +9,15 @@ import {
 } from './ui';
 import { getSettings } from '../services/storage';
 import { solveGoogleFormQuestion } from '../services/gemini';
+import { SupportedFont } from '../types';
 
-console.log('🚀 [Google Forms Helper] Content script initialized.');
+console.log('🚀 [FormIQ Assistant] Content script initialized.');
+
+function applyFontClass(font: SupportedFont) {
+  const fontClasses = ['ai-font-outfit', 'ai-font-jakarta', 'ai-font-manrope', 'ai-font-space-grotesk', 'ai-font-inter'];
+  fontClasses.forEach((cls) => document.body.classList.remove(cls));
+  document.body.classList.add(`ai-font-${font || 'outfit'}`);
+}
 
 async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, index: number) {
   setButtonLoading(btn, true);
@@ -81,6 +88,9 @@ async function solveAllQuestions(
 }
 
 async function scanAndAttach() {
+  const settings = await getSettings();
+  applyFontClass(settings.fontFamily || 'outfit');
+
   const containers = getAllQuestionContainers();
   containers.forEach((container, index) => {
     injectQuestionButton(container, async (btn) => {
@@ -91,6 +101,15 @@ async function scanAndAttach() {
   if (containers.length > 0) {
     await injectFloatingToolbar(solveAllQuestions);
   }
+}
+
+// Listen to dynamic font changes from storage
+if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes.fontFamily) {
+      applyFontClass(changes.fontFamily.newValue);
+    }
+  });
 }
 
 // Initial scan
