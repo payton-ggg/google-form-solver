@@ -18,10 +18,36 @@ async function copyAssets() {
     path.resolve(distDir, 'manifest.json')
   );
 
-  // Copy content css
-  fs.copyFileSync(
+  // Copy fonts directory
+  const fontsDist = path.resolve(distDir, 'fonts');
+  if (!fs.existsSync(fontsDist)) {
+    fs.mkdirSync(fontsDist, { recursive: true });
+  }
+  const fontsSrc = path.resolve(rootDir, 'public/fonts');
+  if (fs.existsSync(fontsSrc)) {
+    fs.readdirSync(fontsSrc).forEach((file) => {
+      fs.copyFileSync(path.join(fontsSrc, file), path.join(fontsDist, file));
+    });
+  }
+
+  // Prepend localized @font-face rules to content.css
+  const templatePath = path.resolve(rootDir, 'public/fonts/fonts.css.template');
+  let fontsCss = '';
+  if (fs.existsSync(templatePath)) {
+    const rawTemplate = fs.readFileSync(templatePath, 'utf8');
+    fontsCss = rawTemplate.replace(
+      /__FONT_BASE_URL__/g,
+      'chrome-extension://__MSG_@@extension_id__/fonts'
+    );
+  }
+
+  const baseStyles = fs.readFileSync(
     path.resolve(rootDir, 'src/content/styles.css'),
-    path.resolve(distDir, 'content.css')
+    'utf8'
+  );
+  fs.writeFileSync(
+    path.resolve(distDir, 'content.css'),
+    fontsCss + '\n\n' + baseStyles
   );
 
   // Copy logo

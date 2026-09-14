@@ -13,14 +13,22 @@ import { SupportedFont } from '../types';
 
 console.log('🚀 [FormIQ Assistant] Content script initialized.');
 
-function injectGoogleFonts() {
-  const fontId = 'formiq-google-fonts';
-  if (!document.getElementById(fontId)) {
-    const link = document.createElement('link');
-    link.id = fontId;
-    link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap';
-    (document.head || document.documentElement).appendChild(link);
+async function injectExtensionFonts() {
+  const fontId = 'formiq-local-fonts';
+  if (document.getElementById(fontId)) return;
+  try {
+    const templateUrl = chrome.runtime.getURL('fonts/fonts.css.template');
+    const response = await fetch(templateUrl);
+    const templateText = await response.text();
+    const fontsBaseUrl = chrome.runtime.getURL('fonts');
+    const resolvedCss = templateText.replaceAll('__FONT_BASE_URL__', fontsBaseUrl);
+
+    const styleEl = document.createElement('style');
+    styleEl.id = fontId;
+    styleEl.textContent = resolvedCss;
+    (document.head || document.documentElement).appendChild(styleEl);
+  } catch (err) {
+    console.warn('[FormIQ] Could not load local extension fonts:', err);
   }
 }
 
@@ -135,8 +143,8 @@ async function scanAndAttach() {
   }
 }
 
-// Inject Google Fonts tag into page head
-injectGoogleFonts();
+// Inject local extension fonts into page
+injectExtensionFonts();
 
 // Listen to dynamic font changes from storage
 if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {

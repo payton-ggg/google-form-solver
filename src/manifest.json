@@ -42,7 +42,8 @@
     {
       "resources": [
         "logo.png",
-        "icons/*"
+        "icons/*",
+        "fonts/*"
       ],
       "matches": [
         "https://docs.google.com/*"
