@@ -36,9 +36,9 @@ export function injectQuestionButton(
 	const btn = document.createElement("button");
 	btn.type = "button";
 	btn.className = "ai-solver-solve-btn";
-	btn.title = "Решить вопрос и показать объяснение";
+	btn.title = "Solve question and show explanation";
 	btn.innerHTML = `
-    <span>Решить</span>
+    <span>Solve</span>
   `;
 
 	btn.addEventListener("click", async (e) => {
@@ -65,7 +65,7 @@ export function injectQuestionButton(
 export function setButtonLoading(
 	btn: HTMLButtonElement,
 	isLoading: boolean,
-	text: string = "Решение...",
+	text: string = "Solving...",
 ) {
 	if (isLoading) {
 		btn.classList.add("loading");
@@ -85,7 +85,7 @@ export function setButtonLoading(
 		btn.classList.remove("loading");
 		btn.disabled = false;
 		btn.innerHTML = `
-      <span>Решить</span>
+      <span>Solve</span>
     `;
 	}
 }
@@ -120,13 +120,13 @@ export function renderExplanationCard(
 			answerDisplay = result.selectedTexts.join("; ");
 		} else if (result.selectedIndices && result.selectedIndices.length > 0) {
 			answerDisplay = result.selectedIndices
-				.map((i) => question.options[i]?.text || `Вариант ${i + 1}`)
+				.map((i) => question.options[i]?.text || `Option ${i + 1}`)
 				.join("; ");
 		} else {
-			answerDisplay = "Ответ выбран";
+			answerDisplay = "Answer selected";
 		}
 	} else {
-		answerDisplay = result.textAnswer || "Введен ответ";
+		answerDisplay = result.textAnswer || "Answer entered";
 	}
 
 	const confidencePct = Math.round(result.confidence || 95);
@@ -141,10 +141,10 @@ export function renderExplanationCard(
     <div class="ai-solver-card-header">
       <div class="ai-solver-card-title">
         ${cardLogoHtml}
-        <span>Пояснение к ответу</span>
-        <span class="ai-solver-confidence-badge">${confidencePct}% точность</span>
+        <span>Answer Explanation</span>
+        <span class="ai-solver-confidence-badge">${confidencePct}% confidence</span>
       </div>
-      <button type="button" class="ai-solver-card-close" title="Закрыть">
+      <button type="button" class="ai-solver-card-close" title="Close">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/>
           <line x1="6" y1="6" x2="18" y2="18"/>
@@ -153,7 +153,7 @@ export function renderExplanationCard(
     </div>
 
     <div class="ai-solver-selected-answer">
-      <div class="ai-solver-selected-answer-label">Выбранный ответ</div>
+      <div class="ai-solver-selected-answer-label">Selected Answer</div>
       <div class="ai-solver-selected-answer-value">${escapeHtml(answerDisplay)}</div>
     </div>
 
@@ -167,7 +167,7 @@ export function renderExplanationCard(
           <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
           <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
         </svg>
-        <span>Скопировать</span>
+        <span>Copy Explanation</span>
       </button>
     </div>
   `;
@@ -184,9 +184,9 @@ export function renderExplanationCard(
 			await navigator.clipboard.writeText(result.explanation);
 			const span = copyBtn.querySelector("span");
 			if (span) {
-				span.textContent = "✓ Скопировано";
+				span.textContent = "✓ Copied!";
 				setTimeout(() => {
-					span.textContent = "Скопировать";
+					span.textContent = "Copy Explanation";
 				}, 2000);
 			}
 		} catch {
@@ -216,9 +216,9 @@ export function renderErrorCard(container: HTMLElement, errorMessage: string) {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e53e3e" stroke-width="2">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
-        Внимание
+        Notice
       </span>
-      <button type="button" class="ai-solver-card-close" style="color:#e53e3e;" title="Закрыть">✕</button>
+      <button type="button" class="ai-solver-card-close" style="color:#e53e3e;" title="Close">✕</button>
     </div>
     <div>${escapeHtml(errorMessage)}</div>
   `;
@@ -260,23 +260,23 @@ export async function injectFloatingToolbar(
       <span>FormIQ</span>
     </div>
 
-    <button type="button" id="ai-solver-solve-all" class="ai-solver-solve-all-btn" title="Автоматически решить все вопросы">
+    <button type="button" id="ai-solver-solve-all" class="ai-solver-solve-all-btn" title="Automatically solve all questions">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
       </svg>
-      <span class="btn-text">Решить все</span>
+      <span class="btn-text">Solve All</span>
     </button>
 
-    <label class="ai-solver-scroll-toggle" title="Плавная автопрокрутка к текущему вопросу">
+    <label class="ai-solver-scroll-toggle" title="Smooth auto-scroll to current question">
       <input type="checkbox" id="ai-solver-scroll-check" ${currentSettings.autoScroll ? "checked" : ""}>
-      <span>Скролл</span>
+      <span>Auto-scroll</span>
     </label>
 
     <div id="ai-solver-progress-wrap" class="ai-solver-progress-bar-container">
       <div id="ai-solver-progress-fill" class="ai-solver-progress-bar-fill"></div>
     </div>
 
-    <button type="button" class="ai-solver-floating-close" title="Скрыть панель">✕</button>
+    <button type="button" class="ai-solver-floating-close" title="Hide Dock">✕</button>
   `;
 
 	document.body.appendChild(bar);
@@ -324,9 +324,9 @@ export async function injectFloatingToolbar(
 			await onSolveAll(solveAllBtn, updateProgress);
 			const textSpan = solveAllBtn.querySelector(".btn-text");
 			if (textSpan) {
-				textSpan.textContent = "✓ Решено!";
+				textSpan.textContent = "✓ Completed!";
 				setTimeout(() => {
-					textSpan.textContent = "Решить все";
+					textSpan.textContent = "Solve All";
 				}, 3000);
 			}
 		} catch (e) {

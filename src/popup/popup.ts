@@ -60,12 +60,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         statusIndicator.style.background = 'rgba(16, 185, 129, 0.15)';
         statusIndicator.style.borderColor = 'rgba(16, 185, 129, 0.3)';
         statusIndicator.style.color = '#059669';
-        statusText.textContent = 'Google Forms активна';
+        statusText.textContent = 'Google Forms active';
       } else {
         statusIndicator.style.background = 'rgba(148, 163, 184, 0.15)';
         statusIndicator.style.borderColor = 'rgba(148, 163, 184, 0.3)';
         statusIndicator.style.color = '#64748b';
-        statusText.textContent = 'Откройте Google Форму';
+        statusText.textContent = 'Open Google Form';
       }
     } catch {
       // Ignore tab query errors
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
       }
     } catch (err: any) {
-      showBanner(false, `Ошибка: ${err?.message || err}`);
+      showBanner(false, `Error: ${err?.message || err}`);
     } finally {
       testSpinner.style.display = 'none';
       testBtn.disabled = false;
@@ -147,11 +147,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       autoScroll,
     });
 
-    const originalText = saveBtn.querySelector('.btn-text')?.textContent || 'Сохранить';
+    const originalText = saveBtn.querySelector('.btn-text')?.textContent || 'Save Settings';
     if (saveBtn.querySelector('.btn-text')) {
-      saveBtn.querySelector('.btn-text')!.textContent = '✓ Сохранено!';
+      saveBtn.querySelector('.btn-text')!.textContent = '✓ Saved!';
     }
-    showBanner(true, 'Настройки успешно сохранены в память расширения.');
+    showBanner(true, 'Settings saved successfully to extension storage.');
     setTimeout(() => {
       if (saveBtn.querySelector('.btn-text')) {
         saveBtn.querySelector('.btn-text')!.textContent = originalText;

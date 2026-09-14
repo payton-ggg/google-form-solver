@@ -67,7 +67,7 @@ async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, ind
     if (!settings.apiKey || settings.apiKey.trim() === '') {
       renderErrorCard(
         container,
-        'API ключ не установлен. Откройте настройки расширения в браузере и введите ключ.'
+        'API key is not configured. Please open the FormIQ extension popup and enter your Gemini API key.'
       );
       setButtonLoading(btn, false);
       return;
@@ -81,7 +81,7 @@ async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, ind
     // Parse question DOM
     const parsedQuestion = await parseQuestionContainer(container, index);
     if (!parsedQuestion) {
-      renderErrorCard(container, 'Не удалось распознать структуру вопроса.');
+      renderErrorCard(container, 'Could not detect the structure of this question.');
       setButtonLoading(btn, false);
       return;
     }
@@ -96,7 +96,7 @@ async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, ind
     renderExplanationCard(container, result, parsedQuestion);
   } catch (error: any) {
     console.error('Error during solve:', error);
-    renderErrorCard(container, error?.message || 'Произошла ошибка при получении ответа.');
+    renderErrorCard(container, error?.message || 'An error occurred while generating the answer.');
   } finally {
     setButtonLoading(btn, false);
   }

@@ -91,7 +91,7 @@ export async function parseQuestionContainer(container: HTMLElement, index: numb
   // Secondary description
   const descEl = container.querySelector('.g6ldxf') || container.querySelector('.e4eG1b');
   if (descEl && descEl.textContent) {
-    title += `\n(Описание: ${descEl.textContent.trim()})`;
+    title += `\n(Description: ${descEl.textContent.trim()})`;
   }
 
   // 2. Images inside the question
@@ -153,7 +153,7 @@ export async function parseQuestionContainer(container: HTMLElement, index: numb
 
       options.push({
         index: optIndex++,
-        text: text || `Вариант ${optIndex}`,
+        text: text || `Option ${optIndex}`,
         element: radioEl as HTMLElement,
         inputElement: radioEl as HTMLElement,
       });
@@ -177,7 +177,7 @@ export async function parseQuestionContainer(container: HTMLElement, index: numb
 
       options.push({
         index: optIndex++,
-        text: text || `Вариант ${optIndex}`,
+        text: text || `Option ${optIndex}`,
         element: checkEl as HTMLElement,
         inputElement: checkEl as HTMLElement,
       });
@@ -194,7 +194,7 @@ export async function parseQuestionContainer(container: HTMLElement, index: numb
     dropdownOptions.forEach((opt, i) => {
       options.push({
         index: i,
-        text: (opt.textContent || opt.getAttribute('data-value') || `Опция ${i + 1}`).trim(),
+        text: (opt.textContent || opt.getAttribute('data-value') || `Option ${i + 1}`).trim(),
         element: opt as HTMLElement,
       });
     });
@@ -202,7 +202,7 @@ export async function parseQuestionContainer(container: HTMLElement, index: numb
 
   // If title was somehow empty, fallback
   if (!title) {
-    title = `Вопрос #${index + 1}`;
+    title = `Question #${index + 1}`;
   }
 
   return {
