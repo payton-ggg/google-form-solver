@@ -1,133 +1,143 @@
-import { GeminiSolveResult, ParsedQuestion } from '../types';
-import { getSettings, saveSettings } from '../services/storage';
+import { GeminiSolveResult, ParsedQuestion } from "../types";
+import { getSettings, saveSettings } from "../services/storage";
 
 function getLogoUrl(): string {
-  try {
-    if (typeof chrome !== 'undefined' && chrome.runtime?.getURL) {
-      return chrome.runtime.getURL('icons/icon48.png');
-    }
-  } catch {
-    // ignore
-  }
-  return '';
+	try {
+		if (typeof chrome !== "undefined" && chrome.runtime?.getURL) {
+			return chrome.runtime.getURL("icons/icon48.png");
+		}
+	} catch {
+		// ignore
+	}
+	return "";
 }
 
 /**
  * Creates and injects the modern solve button inside a question card
  */
 export function injectQuestionButton(
-  container: HTMLElement,
-  onClick: (btn: HTMLButtonElement) => Promise<void>
+	container: HTMLElement,
+	onClick: (btn: HTMLButtonElement) => Promise<void>,
 ): HTMLButtonElement | null {
-  if (container.querySelector('.ai-solver-btn-wrapper')) {
-    return container.querySelector('.ai-solver-solve-btn');
-  }
+	if (container.querySelector(".ai-solver-btn-wrapper")) {
+		return container.querySelector(".ai-solver-solve-btn");
+	}
 
-  const wrapper = document.createElement('div');
-  wrapper.className = 'ai-solver-btn-wrapper';
+	const wrapper = document.createElement("div");
+	wrapper.className = "ai-solver-btn-wrapper";
 
-  const logoUrl = getLogoUrl();
-  const logoHtml = logoUrl
-    ? `<img src="${logoUrl}" class="ai-solver-btn-icon" alt="" width="13" height="13">`
-    : `<svg class="ai-solver-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	const logoUrl = getLogoUrl();
+	const logoHtml = logoUrl
+		? `<img src="${logoUrl}" class="ai-solver-btn-icon" alt="" width="13" height="13">`
+		: `<svg class="ai-solver-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
       </svg>`;
 
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'ai-solver-solve-btn';
-  btn.title = 'Решить вопрос и показать объяснение';
-  btn.innerHTML = `
-    ${logoHtml}
+	const btn = document.createElement("button");
+	btn.type = "button";
+	btn.className = "ai-solver-solve-btn";
+	btn.title = "Решить вопрос и показать объяснение";
+	btn.innerHTML = `
     <span>Решить</span>
   `;
 
-  btn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    await onClick(btn);
-  });
+	btn.addEventListener("click", async (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		await onClick(btn);
+	});
 
-  wrapper.appendChild(btn);
+	wrapper.appendChild(btn);
 
-  // Insert at top of question card
-  if (container.firstChild) {
-    container.insertBefore(wrapper, container.firstChild);
-  } else {
-    container.appendChild(wrapper);
-  }
+	// Insert at top of question card
+	if (container.firstChild) {
+		container.insertBefore(wrapper, container.firstChild);
+	} else {
+		container.appendChild(wrapper);
+	}
 
-  return btn;
+	return btn;
 }
 
 /**
  * Updates button appearance during solve process
  */
-export function setButtonLoading(btn: HTMLButtonElement, isLoading: boolean, text: string = 'Решение...') {
-  if (isLoading) {
-    btn.classList.add('loading');
-    btn.disabled = true;
-    btn.innerHTML = `
+export function setButtonLoading(
+	btn: HTMLButtonElement,
+	isLoading: boolean,
+	text: string = "Решение...",
+) {
+	if (isLoading) {
+		btn.classList.add("loading");
+		btn.disabled = true;
+		btn.innerHTML = `
       <span class="ai-solver-spinner"></span>
       <span>${text}</span>
     `;
-  } else {
-    const logoUrl = getLogoUrl();
-    const logoHtml = logoUrl
-      ? `<img src="${logoUrl}" class="ai-solver-btn-icon" alt="" width="13" height="13">`
-      : `<svg class="ai-solver-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+	} else {
+		const logoUrl = getLogoUrl();
+		const logoHtml = logoUrl
+			? `<img src="${logoUrl}" class="ai-solver-btn-icon" alt="" width="13" height="13">`
+			: `<svg class="ai-solver-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
         </svg>`;
 
-    btn.classList.remove('loading');
-    btn.disabled = false;
-    btn.innerHTML = `
-      ${logoHtml}
+		btn.classList.remove("loading");
+		btn.disabled = false;
+		btn.innerHTML = `
       <span>Решить</span>
     `;
-  }
+	}
 }
 
 /**
  * Injects or updates the explanation card below the question
  */
 export function renderExplanationCard(
-  container: HTMLElement,
-  result: GeminiSolveResult,
-  question: ParsedQuestion
+	container: HTMLElement,
+	result: GeminiSolveResult,
+	question: ParsedQuestion,
 ) {
-  // Remove existing card if any
-  const existing = container.querySelector('.ai-solver-card, .ai-solver-error-card');
-  if (existing) {
-    existing.remove();
-  }
+	// Remove existing card if any
+	const existing = container.querySelector(
+		".ai-solver-card, .ai-solver-error-card",
+	);
+	if (existing) {
+		existing.remove();
+	}
 
-  const card = document.createElement('div');
-  card.className = 'ai-solver-card';
+	const card = document.createElement("div");
+	card.className = "ai-solver-card";
 
-  // Format the answer display text
-  let answerDisplay = '';
-  if (question.type === 'radio' || question.type === 'checkbox' || question.type === 'dropdown') {
-    if (result.selectedTexts && result.selectedTexts.length > 0) {
-      answerDisplay = result.selectedTexts.join('; ');
-    } else if (result.selectedIndices && result.selectedIndices.length > 0) {
-      answerDisplay = result.selectedIndices.map((i) => question.options[i]?.text || `Вариант ${i + 1}`).join('; ');
-    } else {
-      answerDisplay = 'Ответ выбран';
-    }
-  } else {
-    answerDisplay = result.textAnswer || 'Введен ответ';
-  }
+	// Format the answer display text
+	let answerDisplay = "";
+	if (
+		question.type === "radio" ||
+		question.type === "checkbox" ||
+		question.type === "dropdown"
+	) {
+		if (result.selectedTexts && result.selectedTexts.length > 0) {
+			answerDisplay = result.selectedTexts.join("; ");
+		} else if (result.selectedIndices && result.selectedIndices.length > 0) {
+			answerDisplay = result.selectedIndices
+				.map((i) => question.options[i]?.text || `Вариант ${i + 1}`)
+				.join("; ");
+		} else {
+			answerDisplay = "Ответ выбран";
+		}
+	} else {
+		answerDisplay = result.textAnswer || "Введен ответ";
+	}
 
-  const confidencePct = Math.round(result.confidence || 95);
-  const logoUrl = getLogoUrl();
-  const cardLogoHtml = logoUrl
-    ? `<img src="${logoUrl}" class="ai-solver-card-logo" alt="FormIQ" width="16" height="16">`
-    : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+	const confidencePct = Math.round(result.confidence || 95);
+	const logoUrl = getLogoUrl();
+	const cardLogoHtml = logoUrl
+		? `<img src="${logoUrl}" class="ai-solver-card-logo" alt="FormIQ" width="16" height="16">`
+		: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
       </svg>`;
 
-  card.innerHTML = `
+	card.innerHTML = `
     <div class="ai-solver-card-header">
       <div class="ai-solver-card-title">
         ${cardLogoHtml}
@@ -162,43 +172,45 @@ export function renderExplanationCard(
     </div>
   `;
 
-  // Bind close
-  card.querySelector('.ai-solver-card-close')?.addEventListener('click', () => {
-    card.remove();
-  });
+	// Bind close
+	card.querySelector(".ai-solver-card-close")?.addEventListener("click", () => {
+		card.remove();
+	});
 
-  // Bind copy
-  const copyBtn = card.querySelector('.copy-btn') as HTMLButtonElement;
-  copyBtn?.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(result.explanation);
-      const span = copyBtn.querySelector('span');
-      if (span) {
-        span.textContent = '✓ Скопировано';
-        setTimeout(() => {
-          span.textContent = 'Скопировать';
-        }, 2000);
-      }
-    } catch {
-      // Fallback
-    }
-  });
+	// Bind copy
+	const copyBtn = card.querySelector(".copy-btn") as HTMLButtonElement;
+	copyBtn?.addEventListener("click", async () => {
+		try {
+			await navigator.clipboard.writeText(result.explanation);
+			const span = copyBtn.querySelector("span");
+			if (span) {
+				span.textContent = "✓ Скопировано";
+				setTimeout(() => {
+					span.textContent = "Скопировать";
+				}, 2000);
+			}
+		} catch {
+			// Fallback
+		}
+	});
 
-  container.appendChild(card);
+	container.appendChild(card);
 }
 
 /**
  * Displays error card inside the question container
  */
 export function renderErrorCard(container: HTMLElement, errorMessage: string) {
-  const existing = container.querySelector('.ai-solver-card, .ai-solver-error-card');
-  if (existing) {
-    existing.remove();
-  }
+	const existing = container.querySelector(
+		".ai-solver-card, .ai-solver-error-card",
+	);
+	if (existing) {
+		existing.remove();
+	}
 
-  const errorCard = document.createElement('div');
-  errorCard.className = 'ai-solver-error-card';
-  errorCard.innerHTML = `
+	const errorCard = document.createElement("div");
+	errorCard.className = "ai-solver-error-card";
+	errorCard.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center; font-weight:600;">
       <span style="display:flex; align-items:center; gap:6px;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e53e3e" stroke-width="2">
@@ -211,36 +223,40 @@ export function renderErrorCard(container: HTMLElement, errorMessage: string) {
     <div>${escapeHtml(errorMessage)}</div>
   `;
 
-  errorCard.querySelector('.ai-solver-card-close')?.addEventListener('click', () => {
-    errorCard.remove();
-  });
+	errorCard
+		.querySelector(".ai-solver-card-close")
+		?.addEventListener("click", () => {
+			errorCard.remove();
+		});
 
-  container.appendChild(errorCard);
+	container.appendChild(errorCard);
 }
 
 /**
  * Injects modern floating dock into page with auto-scroll toggle and logo
  */
 export async function injectFloatingToolbar(
-  onSolveAll: (btn: HTMLButtonElement, progress: (current: number, total: number) => void) => Promise<void>
+	onSolveAll: (
+		btn: HTMLButtonElement,
+		progress: (current: number, total: number) => void,
+	) => Promise<void>,
 ) {
-  if (document.getElementById('ai-solver-floating-bar')) return;
+	if (document.getElementById("ai-solver-floating-bar")) return;
 
-  const currentSettings = await getSettings();
-  const logoUrl = getLogoUrl();
-  const dockLogoHtml = logoUrl
-    ? `<img src="${logoUrl}" class="ai-solver-brand-logo" alt="FormIQ" width="18" height="18">`
-    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.3">
+	const currentSettings = await getSettings();
+	const logoUrl = getLogoUrl();
+	const dockLogoHtml = logoUrl
+		? `<img src="${logoUrl}" class="ai-solver-brand-logo" alt="FormIQ" width="18" height="18">`
+		: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.3">
         <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
       </svg>`;
 
-  const bar = document.createElement('div');
-  bar.id = 'ai-solver-floating-bar';
-  bar.className = 'ai-solver-floating-bar';
+	const bar = document.createElement("div");
+	bar.id = "ai-solver-floating-bar";
+	bar.className = "ai-solver-floating-bar";
 
-  bar.innerHTML = `
+	bar.innerHTML = `
     <div class="ai-solver-bar-brand">
-      ${dockLogoHtml}
       <span>FormIQ</span>
     </div>
 
@@ -252,7 +268,7 @@ export async function injectFloatingToolbar(
     </button>
 
     <label class="ai-solver-scroll-toggle" title="Плавная автопрокрутка к текущему вопросу">
-      <input type="checkbox" id="ai-solver-scroll-check" ${currentSettings.autoScroll ? 'checked' : ''}>
+      <input type="checkbox" id="ai-solver-scroll-check" ${currentSettings.autoScroll ? "checked" : ""}>
       <span>Скролл</span>
     </label>
 
@@ -263,59 +279,69 @@ export async function injectFloatingToolbar(
     <button type="button" class="ai-solver-floating-close" title="Скрыть панель">✕</button>
   `;
 
-  document.body.appendChild(bar);
+	document.body.appendChild(bar);
 
-  const solveAllBtn = bar.querySelector('#ai-solver-solve-all') as HTMLButtonElement;
-  const scrollCheck = bar.querySelector('#ai-solver-scroll-check') as HTMLInputElement;
-  const progressWrap = bar.querySelector('#ai-solver-progress-wrap') as HTMLElement;
-  const progressFill = bar.querySelector('#ai-solver-progress-fill') as HTMLElement;
-  const closeBtn = bar.querySelector('.ai-solver-floating-close') as HTMLButtonElement;
+	const solveAllBtn = bar.querySelector(
+		"#ai-solver-solve-all",
+	) as HTMLButtonElement;
+	const scrollCheck = bar.querySelector(
+		"#ai-solver-scroll-check",
+	) as HTMLInputElement;
+	const progressWrap = bar.querySelector(
+		"#ai-solver-progress-wrap",
+	) as HTMLElement;
+	const progressFill = bar.querySelector(
+		"#ai-solver-progress-fill",
+	) as HTMLElement;
+	const closeBtn = bar.querySelector(
+		".ai-solver-floating-close",
+	) as HTMLButtonElement;
 
-  // Listen to autoScroll toggle change
-  scrollCheck.addEventListener('change', async () => {
-    await saveSettings({ autoScroll: scrollCheck.checked });
-  });
+	// Listen to autoScroll toggle change
+	scrollCheck.addEventListener("change", async () => {
+		await saveSettings({ autoScroll: scrollCheck.checked });
+	});
 
-  closeBtn.addEventListener('click', () => {
-    bar.remove();
-  });
+	closeBtn.addEventListener("click", () => {
+		bar.remove();
+	});
 
-  solveAllBtn.addEventListener('click', async () => {
-    solveAllBtn.disabled = true;
-    progressWrap.style.display = 'block';
-    progressFill.style.width = '0%';
+	solveAllBtn.addEventListener("click", async () => {
+		solveAllBtn.disabled = true;
+		progressWrap.style.display = "block";
+		progressFill.style.width = "0%";
 
-    const updateProgress = (current: number, total: number) => {
-      const pct = total > 0 ? (current / total) * 100 : 0;
-      progressFill.style.width = `${pct}%`;
-      const textSpan = solveAllBtn.querySelector('.btn-text');
-      if (textSpan) {
-        textSpan.textContent = `(${current}/${total})...`;
-      }
-    };
+		const updateProgress = (current: number, total: number) => {
+			const pct = total > 0 ? (current / total) * 100 : 0;
+			progressFill.style.width = `${pct}%`;
+			const textSpan = solveAllBtn.querySelector(".btn-text");
+			if (textSpan) {
+				textSpan.textContent = `(${current}/${total})...`;
+			}
+		};
 
-    try {
-      await onSolveAll(solveAllBtn, updateProgress);
-      const textSpan = solveAllBtn.querySelector('.btn-text');
-      if (textSpan) {
-        textSpan.textContent = '✓ Решено!';
-        setTimeout(() => {
-          textSpan.textContent = 'Решить все';
-        }, 3000);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      solveAllBtn.disabled = false;
-      setTimeout(() => {
-        progressWrap.style.display = 'none';
-      }, 2000);
-    }
-  });
+		try {
+			await onSolveAll(solveAllBtn, updateProgress);
+			const textSpan = solveAllBtn.querySelector(".btn-text");
+			if (textSpan) {
+				textSpan.textContent = "✓ Решено!";
+				setTimeout(() => {
+					textSpan.textContent = "Решить все";
+				}, 3000);
+			}
+		} catch (e) {
+			console.error(e);
+		} finally {
+			solveAllBtn.disabled = false;
+			setTimeout(() => {
+				progressWrap.style.display = "none";
+			}, 2000);
+		}
+	});
 }
 
 function escapeHtml(str: string): string {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+	const div = document.createElement("div");
+	div.textContent = str;
+	return div.innerHTML;
 }
