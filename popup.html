@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google Forms AI</title>
+  <title>FormIQ — AI Forms Assistant</title>
   <link rel="stylesheet" href="./src/popup/popup.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="popup-container">
@@ -15,17 +15,21 @@
     <header class="header">
       <div class="logo-wrapper">
         <div class="logo-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"/>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
           </svg>
         </div>
         <div class="logo-text">
-          <h1>Forms AI Solver</h1>
+          <div class="logo-title-row">
+            <h1>FormIQ</h1>
+            <span class="pro-badge">AI</span>
+          </div>
+          <span class="logo-subtitle">Google Forms Assistant</span>
         </div>
       </div>
       <div class="status-indicator" id="statusIndicator">
         <span class="dot"></span>
-        <span class="status-text" id="statusText">Готов к работе</span>
+        <span class="status-text" id="statusText">Готов</span>
       </div>
     </header>
 
@@ -108,17 +112,17 @@
             <path d="M12 16v-4"/>
             <path d="M12 8h.01"/>
           </svg>
-          <span>Как это работает</span>
+          <span>Как использовать</span>
         </div>
         <p class="guide-text">
-          Откройте Google Форму — возле каждого вопроса появится кнопка <b>«Решить»</b>. В нижнем правом углу доступна плавающая панель для автозаполнения всего теста.
+          Откройте Google Форму — возле каждого вопроса будет кнопка <b>«Решить»</b>. В правом нижнем углу находится виджет <b>FormIQ</b> для быстрого решения всех заданий.
         </p>
       </div>
     </main>
 
     <!-- Footer -->
     <footer class="footer">
-      <span>AI Forms Solver v1.0.0</span>
+      <span>FormIQ v1.0.0</span>
       <a href="https://aistudio.google.com" target="_blank">Google AI Studio</a>
     </footer>
   </div>

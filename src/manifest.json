@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Google Forms AI Solver (Gemini)",
+  "name": "FormIQ — AI Solver для Google Форм",
   "version": "1.0.0",
-  "description": "Автоматическое решение заданий и объяснение ответов в Google Формах с помощью Google Gemini AI",
+  "description": "Интеллектуальный помощник на базе Google Gemini 3.6 для автоматического решения и подробного объяснения заданий в Google Формах",
   "permissions": [
     "storage",
     "activeTab"
@@ -13,7 +13,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Google Forms AI Solver",
+    "default_title": "FormIQ",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

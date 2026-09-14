@@ -210,10 +210,10 @@ export async function injectFloatingToolbar(
 
   bar.innerHTML = `
     <div class="ai-solver-bar-brand">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.2">
-        <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"/>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.3">
+        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
       </svg>
-      <span>AI Solver</span>
+      <span>FormIQ</span>
     </div>
 
     <button type="button" id="ai-solver-solve-all" class="ai-solver-solve-all-btn" title="Автоматически решить все вопросы">

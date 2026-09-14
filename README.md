@@ -1,6 +1,6 @@
-# 🚀 Google Forms AI Solver (Chrome Extension)
+# ⚡ FormIQ — AI Forms Assistant (Chrome Extension)
 
-Умное расширение для браузера Google Chrome (Manifest V3) на базе **Google Gemini AI**, которое автоматически находит правильные ответы и пошагово объясняет решения в Google Формах.
+Умное расширение для браузера Google Chrome (Manifest V3) на базе **Google Gemini 3.6 Flash / Pro**, которое мгновенно находит правильные ответы и пошагово объясняет решения в Google Формах.
 
 ---
 
