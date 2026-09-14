@@ -61,15 +61,11 @@ body {
   gap: 10px;
 }
 
-.logo-icon {
-  width: 32px;
-  height: 32px;
+.logo-img {
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-sm);
-  background: var(--accent-gradient);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  object-fit: cover;
   box-shadow: 0 0 16px rgba(37, 99, 235, 0.4);
 }
 

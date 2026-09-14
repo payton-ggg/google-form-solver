@@ -24,6 +24,14 @@ async function copyAssets() {
     path.resolve(distDir, 'content.css')
   );
 
+  // Copy logo
+  if (fs.existsSync(path.resolve(rootDir, 'public/logo.png'))) {
+    fs.copyFileSync(
+      path.resolve(rootDir, 'public/logo.png'),
+      path.resolve(distDir, 'logo.png')
+    );
+  }
+
   // Copy icons
   const iconsDist = path.resolve(distDir, 'icons');
   if (!fs.existsSync(iconsDist)) {

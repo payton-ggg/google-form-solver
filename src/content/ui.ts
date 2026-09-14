@@ -1,6 +1,17 @@
 import { GeminiSolveResult, ParsedQuestion } from '../types';
 import { getSettings, saveSettings } from '../services/storage';
 
+function getLogoUrl(): string {
+  try {
+    if (typeof chrome !== 'undefined' && chrome.runtime?.getURL) {
+      return chrome.runtime.getURL('icons/icon48.png');
+    }
+  } catch {
+    // ignore
+  }
+  return '';
+}
+
 /**
  * Creates and injects the modern solve button inside a question card
  */
@@ -15,14 +26,19 @@ export function injectQuestionButton(
   const wrapper = document.createElement('div');
   wrapper.className = 'ai-solver-btn-wrapper';
 
+  const logoUrl = getLogoUrl();
+  const logoHtml = logoUrl
+    ? `<img src="${logoUrl}" class="ai-solver-btn-icon" alt="" width="13" height="13">`
+    : `<svg class="ai-solver-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
+      </svg>`;
+
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'ai-solver-solve-btn';
   btn.title = 'Решить вопрос и показать объяснение';
   btn.innerHTML = `
-    <svg class="ai-solver-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"/>
-    </svg>
+    ${logoHtml}
     <span>Решить</span>
   `;
 
@@ -56,12 +72,17 @@ export function setButtonLoading(btn: HTMLButtonElement, isLoading: boolean, tex
       <span>${text}</span>
     `;
   } else {
+    const logoUrl = getLogoUrl();
+    const logoHtml = logoUrl
+      ? `<img src="${logoUrl}" class="ai-solver-btn-icon" alt="" width="13" height="13">`
+      : `<svg class="ai-solver-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
+        </svg>`;
+
     btn.classList.remove('loading');
     btn.disabled = false;
     btn.innerHTML = `
-      <svg class="ai-solver-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"/>
-      </svg>
+      ${logoHtml}
       <span>Решить</span>
     `;
   }
@@ -99,14 +120,17 @@ export function renderExplanationCard(
   }
 
   const confidencePct = Math.round(result.confidence || 95);
+  const logoUrl = getLogoUrl();
+  const cardLogoHtml = logoUrl
+    ? `<img src="${logoUrl}" class="ai-solver-card-logo" alt="FormIQ" width="16" height="16">`
+    : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
+      </svg>`;
 
   card.innerHTML = `
     <div class="ai-solver-card-header">
       <div class="ai-solver-card-title">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 11l3 3L22 4"/>
-          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-        </svg>
+        ${cardLogoHtml}
         <span>Пояснение к ответу</span>
         <span class="ai-solver-confidence-badge">${confidencePct}% точность</span>
       </div>
@@ -195,7 +219,7 @@ export function renderErrorCard(container: HTMLElement, errorMessage: string) {
 }
 
 /**
- * Injects modern floating dock into page with auto-scroll toggle
+ * Injects modern floating dock into page with auto-scroll toggle and logo
  */
 export async function injectFloatingToolbar(
   onSolveAll: (btn: HTMLButtonElement, progress: (current: number, total: number) => void) => Promise<void>
@@ -203,6 +227,12 @@ export async function injectFloatingToolbar(
   if (document.getElementById('ai-solver-floating-bar')) return;
 
   const currentSettings = await getSettings();
+  const logoUrl = getLogoUrl();
+  const dockLogoHtml = logoUrl
+    ? `<img src="${logoUrl}" class="ai-solver-brand-logo" alt="FormIQ" width="18" height="18">`
+    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.3">
+        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
+      </svg>`;
 
   const bar = document.createElement('div');
   bar.id = 'ai-solver-floating-bar';
@@ -210,9 +240,7 @@ export async function injectFloatingToolbar(
 
   bar.innerHTML = `
     <div class="ai-solver-bar-brand">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.3">
-        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
-      </svg>
+      ${dockLogoHtml}
       <span>FormIQ</span>
     </div>
 
