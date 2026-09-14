@@ -2,7 +2,7 @@ import { ExtensionSettings, GeminiModel } from '../types';
 
 const DEFAULT_SETTINGS: ExtensionSettings = {
   apiKey: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) || '',
-  model: 'gemini-2.5-flash',
+  model: 'gemini-3.6-flash',
   autoScroll: true,
   language: 'auto',
 };
@@ -10,7 +10,7 @@ const DEFAULT_SETTINGS: ExtensionSettings = {
 export async function getSettings(): Promise<ExtensionSettings> {
   return new Promise((resolve) => {
     if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
-      chrome.storage.sync.get(DEFAULT_SETTINGS, (items) => {
+      chrome.storage.sync.get(DEFAULT_SETTINGS as Record<string, any>, (items) => {
         const settings = {
           ...DEFAULT_SETTINGS,
           ...(items as Partial<ExtensionSettings>),
@@ -22,7 +22,7 @@ export async function getSettings(): Promise<ExtensionSettings> {
         resolve(settings);
       });
     } else if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-      chrome.storage.local.get(DEFAULT_SETTINGS, (items) => {
+      chrome.storage.local.get(DEFAULT_SETTINGS as Record<string, any>, (items) => {
         resolve({ ...DEFAULT_SETTINGS, ...(items as Partial<ExtensionSettings>) });
       });
     } else {
@@ -40,11 +40,11 @@ export async function getSettings(): Promise<ExtensionSettings> {
 export async function saveSettings(settings: Partial<ExtensionSettings>): Promise<void> {
   return new Promise((resolve) => {
     if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
-      chrome.storage.sync.set(settings, () => {
+      chrome.storage.sync.set(settings as Record<string, any>, () => {
         resolve();
       });
     } else if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-      chrome.storage.local.set(settings, () => {
+      chrome.storage.local.set(settings as Record<string, any>, () => {
         resolve();
       });
     } else {
