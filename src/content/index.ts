@@ -10,7 +10,7 @@ import {
 import { getSettings } from '../services/storage';
 import { solveGoogleFormQuestion } from '../services/gemini';
 
-console.log('🚀 [Google Forms AI Solver] Content script initialized.');
+console.log('🚀 [Google Forms Helper] Content script initialized.');
 
 async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, index: number) {
   setButtonLoading(btn, true);
@@ -20,10 +20,15 @@ async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, ind
     if (!settings.apiKey || settings.apiKey.trim() === '') {
       renderErrorCard(
         container,
-        '⚠️ API ключ Gemini не установлен. Пожалуйста, откройте иконку расширения в правом верхнем углу браузера и введите ваш Gemini API Key.'
+        'API ключ не установлен. Откройте настройки расширения в браузере и введите ключ.'
       );
       setButtonLoading(btn, false);
       return;
+    }
+
+    // Auto scroll to question if enabled
+    if (settings.autoScroll) {
+      container.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     // Parse question DOM
@@ -42,14 +47,9 @@ async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, ind
 
     // Display Explanation Card
     renderExplanationCard(container, result, parsedQuestion);
-
-    // Auto scroll if enabled
-    if (settings.autoScroll) {
-      container.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
   } catch (error: any) {
-    console.error('Error during AI solve:', error);
-    renderErrorCard(container, error?.message || 'Произошла непредвиденная ошибка при обращении к ИИ.');
+    console.error('Error during solve:', error);
+    renderErrorCard(container, error?.message || 'Произошла ошибка при получении ответа.');
   } finally {
     setButtonLoading(btn, false);
   }
@@ -66,15 +66,21 @@ async function solveAllQuestions(
     const container = containers[i];
     const btn = container.querySelector('.ai-solver-solve-btn') as HTMLButtonElement;
     if (btn) {
+      const settings = await getSettings();
+      if (settings.autoScroll) {
+        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Smooth scroll transition delay
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
       await solveQuestion(container, btn, i);
     }
     onProgress(i + 1, containers.length);
     // Slight pause to avoid hitting aggressive rate limits
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 600));
   }
 }
 
-function scanAndAttach() {
+async function scanAndAttach() {
   const containers = getAllQuestionContainers();
   containers.forEach((container, index) => {
     injectQuestionButton(container, async (btn) => {
@@ -83,7 +89,7 @@ function scanAndAttach() {
   });
 
   if (containers.length > 0) {
-    injectFloatingToolbar(solveAllQuestions);
+    await injectFloatingToolbar(solveAllQuestions);
   }
 }
 

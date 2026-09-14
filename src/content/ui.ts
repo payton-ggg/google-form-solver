@@ -1,4 +1,5 @@
 import { GeminiSolveResult, ParsedQuestion } from '../types';
+import { getSettings, saveSettings } from '../services/storage';
 
 /**
  * Creates and injects the subtle helper button inside a question card
@@ -196,12 +197,14 @@ export function renderErrorCard(container: HTMLElement, errorMessage: string) {
 }
 
 /**
- * Injects subtle floating toolbar into page
+ * Injects subtle floating toolbar into page with auto-scroll toggle
  */
-export function injectFloatingToolbar(
+export async function injectFloatingToolbar(
   onSolveAll: (btn: HTMLButtonElement, progress: (current: number, total: number) => void) => Promise<void>
 ) {
   if (document.getElementById('ai-solver-floating-bar')) return;
+
+  const currentSettings = await getSettings();
 
   const bar = document.createElement('div');
   bar.id = 'ai-solver-floating-bar';
@@ -216,23 +219,34 @@ export function injectFloatingToolbar(
       <span>Помощник</span>
     </div>
 
-    <button type="button" id="ai-solver-solve-all" class="ai-solver-solve-all-btn">
+    <button type="button" id="ai-solver-solve-all" class="ai-solver-solve-all-btn" title="Автоматически заполнить все вопросы формы">
       <span class="btn-text">Заполнить все</span>
     </button>
+
+    <label class="ai-solver-scroll-toggle" title="Автоматически плавно прокручивать страницу к каждому вопросу во время решения">
+      <input type="checkbox" id="ai-solver-scroll-check" ${currentSettings.autoScroll ? 'checked' : ''}>
+      <span>Прокрутка</span>
+    </label>
 
     <div id="ai-solver-progress-wrap" class="ai-solver-progress-bar-container">
       <div id="ai-solver-progress-fill" class="ai-solver-progress-bar-fill"></div>
     </div>
 
-    <button type="button" class="ai-solver-floating-close" title="Скрыть">✕</button>
+    <button type="button" class="ai-solver-floating-close" title="Скрыть панель">✕</button>
   `;
 
   document.body.appendChild(bar);
 
   const solveAllBtn = bar.querySelector('#ai-solver-solve-all') as HTMLButtonElement;
+  const scrollCheck = bar.querySelector('#ai-solver-scroll-check') as HTMLInputElement;
   const progressWrap = bar.querySelector('#ai-solver-progress-wrap') as HTMLElement;
   const progressFill = bar.querySelector('#ai-solver-progress-fill') as HTMLElement;
   const closeBtn = bar.querySelector('.ai-solver-floating-close') as HTMLButtonElement;
+
+  // Listen to autoScroll toggle change
+  scrollCheck.addEventListener('change', async () => {
+    await saveSettings({ autoScroll: scrollCheck.checked });
+  });
 
   closeBtn.addEventListener('click', () => {
     bar.remove();
