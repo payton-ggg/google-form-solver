@@ -1,7 +1,7 @@
 import { GeminiSolveResult, ParsedQuestion } from '../types';
 
 /**
- * Creates and injects the "AI Solve" button above/inside a question card
+ * Creates and injects the subtle helper button inside a question card
  */
 export function injectQuestionButton(
   container: HTMLElement,
@@ -17,11 +17,15 @@ export function injectQuestionButton(
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'ai-solver-solve-btn';
+  btn.title = 'Подсказать ответ и показать пояснение';
   btn.innerHTML = `
-    <svg class="ai-solver-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+    <svg class="ai-solver-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
     </svg>
-    <span>✨ AI Решить</span>
+    <span>Подсказать</span>
   `;
 
   btn.addEventListener('click', async (e) => {
@@ -45,7 +49,7 @@ export function injectQuestionButton(
 /**
  * Updates button appearance during solve process
  */
-export function setButtonLoading(btn: HTMLButtonElement, isLoading: boolean, text: string = '⚡ Решаю...') {
+export function setButtonLoading(btn: HTMLButtonElement, isLoading: boolean, text: string = 'Поиск ответа...') {
   if (isLoading) {
     btn.classList.add('loading');
     btn.disabled = true;
@@ -57,10 +61,13 @@ export function setButtonLoading(btn: HTMLButtonElement, isLoading: boolean, tex
     btn.classList.remove('loading');
     btn.disabled = false;
     btn.innerHTML = `
-      <svg class="ai-solver-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+      <svg class="ai-solver-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
       </svg>
-      <span>✨ AI Решить</span>
+      <span>Подсказать</span>
     `;
   }
 }
@@ -101,22 +108,19 @@ export function renderExplanationCard(
   card.innerHTML = `
     <div class="ai-solver-card-header">
       <div class="ai-solver-card-title">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5">
-          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
         </svg>
-        <span>Ответ от Gemini AI</span>
-        <span class="ai-solver-confidence-badge">${confidencePct}% уверенность</span>
+        <span>Пояснение к вопросу</span>
+        <span class="ai-solver-confidence-badge">${confidencePct}%</span>
       </div>
-      <button type="button" class="ai-solver-card-close" title="Закрыть карточку">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/>
-          <line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
+      <button type="button" class="ai-solver-card-close" title="Закрыть">✕</button>
     </div>
 
     <div class="ai-solver-selected-answer">
-      <div class="ai-solver-selected-answer-label">✓ Выбранный ответ:</div>
+      <div class="ai-solver-selected-answer-label">✓ Рекомендуемый ответ:</div>
       <div class="ai-solver-selected-answer-value">${escapeHtml(answerDisplay)}</div>
     </div>
 
@@ -130,7 +134,7 @@ export function renderExplanationCard(
           <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
           <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
         </svg>
-        <span>Скопировать объяснение</span>
+        <span>Копировать</span>
       </button>
     </div>
   `;
@@ -147,9 +151,9 @@ export function renderExplanationCard(
       await navigator.clipboard.writeText(result.explanation);
       const span = copyBtn.querySelector('span');
       if (span) {
-        span.textContent = '✓ Скопировано!';
+        span.textContent = '✓ Скопировано';
         setTimeout(() => {
-          span.textContent = 'Скопировать объяснение';
+          span.textContent = 'Копировать';
         }, 2000);
       }
     } catch {
@@ -172,14 +176,14 @@ export function renderErrorCard(container: HTMLElement, errorMessage: string) {
   const errorCard = document.createElement('div');
   errorCard.className = 'ai-solver-error-card';
   errorCard.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center; font-weight:700;">
-      <span style="display:flex; align-items:center; gap:6px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+    <div style="display:flex; justify-content:space-between; align-items:center; font-weight:500;">
+      <span style="display:flex; align-items:center; gap:5px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#e02424" stroke-width="2">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
-        Ошибка решения
+        Сообщение
       </span>
-      <button type="button" class="ai-solver-card-close" style="color:#ef4444;" title="Закрыть">✕</button>
+      <button type="button" class="ai-solver-card-close" style="color:#e02424;" title="Закрыть">✕</button>
     </div>
     <div>${escapeHtml(errorMessage)}</div>
   `;
@@ -192,7 +196,7 @@ export function renderErrorCard(container: HTMLElement, errorMessage: string) {
 }
 
 /**
- * Injects floating toolbar into page
+ * Injects subtle floating toolbar into page
  */
 export function injectFloatingToolbar(
   onSolveAll: (btn: HTMLButtonElement, progress: (current: number, total: number) => void) => Promise<void>
@@ -205,24 +209,22 @@ export function injectFloatingToolbar(
 
   bar.innerHTML = `
     <div class="ai-solver-bar-brand">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.5">
-        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a73e8" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
       </svg>
-      <span>AI Solver</span>
+      <span>Помощник</span>
     </div>
 
     <button type="button" id="ai-solver-solve-all" class="ai-solver-solve-all-btn">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-      </svg>
-      <span class="btn-text">✨ Решить всю форму</span>
+      <span class="btn-text">Заполнить все</span>
     </button>
 
     <div id="ai-solver-progress-wrap" class="ai-solver-progress-bar-container">
       <div id="ai-solver-progress-fill" class="ai-solver-progress-bar-fill"></div>
     </div>
 
-    <button type="button" class="ai-solver-floating-close" title="Скрыть панель">✕</button>
+    <button type="button" class="ai-solver-floating-close" title="Скрыть">✕</button>
   `;
 
   document.body.appendChild(bar);
@@ -246,7 +248,7 @@ export function injectFloatingToolbar(
       progressFill.style.width = `${pct}%`;
       const textSpan = solveAllBtn.querySelector('.btn-text');
       if (textSpan) {
-        textSpan.textContent = `Решаю (${current}/${total})...`;
+        textSpan.textContent = `(${current}/${total})...`;
       }
     };
 
@@ -254,9 +256,9 @@ export function injectFloatingToolbar(
       await onSolveAll(solveAllBtn, updateProgress);
       const textSpan = solveAllBtn.querySelector('.btn-text');
       if (textSpan) {
-        textSpan.textContent = '✓ Форма решена!';
+        textSpan.textContent = '✓ Готово';
         setTimeout(() => {
-          textSpan.textContent = '✨ Решить всю форму';
+          textSpan.textContent = 'Заполнить все';
         }, 3000);
       }
     } catch (e) {
