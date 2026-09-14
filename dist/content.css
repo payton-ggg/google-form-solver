@@ -10,7 +10,6 @@ body.ai-font-jakarta, .ai-font-jakarta { --ai-solver-font: 'Plus Jakarta Sans', 
 body.ai-font-manrope, .ai-font-manrope { --ai-solver-font: 'Manrope', sans-serif !important; }
 body.ai-font-space-grotesk, .ai-font-space-grotesk { --ai-solver-font: 'Space Grotesk', sans-serif !important; }
 body.ai-font-inter, .ai-font-inter { --ai-solver-font: 'Inter', sans-serif !important; }
-
 /* 1. Question Action Button (Light Theme) */
 .ai-solver-btn-wrapper {
   display: flex;
