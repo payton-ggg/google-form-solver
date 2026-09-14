@@ -2,7 +2,7 @@ import { ExtensionSettings, GeminiModel } from '../types';
 
 const DEFAULT_SETTINGS: ExtensionSettings = {
   apiKey: (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) || '',
-  model: 'gemini-3.6-flash',
+  model: 'gemini-2.5-flash',
   autoScroll: true,
   language: 'auto',
   fontFamily: 'outfit',

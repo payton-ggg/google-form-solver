@@ -7,15 +7,54 @@ export interface GeminiTestResult {
   message: string;
 }
 
+export interface GeminiModelInfo {
+  id: string;
+  displayName: string;
+  description?: string;
+  supportedMethods: string[];
+}
+
+/**
+ * Fetch all available models from Gemini API that support generateContent
+ */
+export async function listAvailableGeminiModels(apiKey: string): Promise<GeminiModelInfo[]> {
+  if (!apiKey || apiKey.trim() === '') {
+    throw new Error('API key is missing. Please enter a valid Gemini API Key.');
+  }
+
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey.trim()}`;
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMsg = errorData?.error?.message || `HTTP ${response.status}: ${response.statusText}`;
+    throw new Error(`Failed to list models: ${errorMsg}`);
+  }
+
+  const data = await response.json();
+  const models = data?.models || [];
+
+  return models
+    .filter((m: any) => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+    .map((m: any) => ({
+      id: m.name ? m.name.replace(/^models\//, '') : '',
+      displayName: m.displayName || m.name?.replace(/^models\//, '') || '',
+      description: m.description || '',
+      supportedMethods: m.supportedGenerationMethods || [],
+    }))
+    .filter((m: GeminiModelInfo) => m.id.length > 0);
+}
+
 /**
  * Quick validation of API key and selected model against Google Gemini API
  */
-export async function testGeminiApiKey(apiKey: string, model: GeminiModel = 'gemini-3.6-flash'): Promise<GeminiTestResult> {
+export async function testGeminiApiKey(apiKey: string, model: GeminiModel = 'gemini-2.5-flash'): Promise<GeminiTestResult> {
   if (!apiKey || apiKey.trim() === '') {
     return { success: false, message: 'API key is missing. Please enter a valid Gemini API Key.' };
   }
 
-  const endpoint = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey.trim()}`;
+  const cleanModel = model.replace(/^models\//, '');
+  const endpoint = `${GEMINI_API_BASE}/${cleanModel}:generateContent?key=${apiKey.trim()}`;
 
   try {
     const response = await fetch(endpoint, {
@@ -39,8 +78,8 @@ export async function testGeminiApiKey(apiKey: string, model: GeminiModel = 'gem
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const errorMsg = errorData?.error?.message || `HTTP ${response.status}: ${response.statusText}`;
-      if (response.status === 400 || response.status === 403) {
-        return { success: false, message: `Invalid API key or model access denied for ${model}. (${errorMsg})` };
+      if (response.status === 400 || response.status === 403 || response.status === 404) {
+        return { success: false, message: `Model error (${cleanModel}): ${errorMsg}` };
       }
       return { success: false, message: `Gemini API Error: ${errorMsg}` };
     }
@@ -48,7 +87,7 @@ export async function testGeminiApiKey(apiKey: string, model: GeminiModel = 'gem
     const data = await response.json();
     const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (reply) {
-      return { success: true, message: `Connection successful! Model: ${model}` };
+      return { success: true, message: `Connection successful! Model: ${cleanModel}` };
     }
     return { success: false, message: 'Empty response from Gemini API' };
   } catch (error: any) {
@@ -68,7 +107,7 @@ export async function solveGoogleFormQuestion(
     throw new Error('Gemini API key is not configured. Please open FormIQ settings and enter your key.');
   }
 
-  const model = settings.model || 'gemini-3.6-flash';
+  const model = (settings.model || 'gemini-2.5-flash').replace(/^models\//, '');
   const endpoint = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
 
   // Build the prompt parts

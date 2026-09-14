@@ -1,12 +1,24 @@
 import { getSettings, saveSettings } from '../services/storage';
-import { testGeminiApiKey } from '../services/gemini';
+import { testGeminiApiKey, listAvailableGeminiModels } from '../services/gemini';
 import { GeminiModel, SupportedFont } from '../types';
+
+const KNOWN_MODELS = [
+  { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (Fast, Recommended)' },
+  { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro (Highest Accuracy)' },
+  { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite (Fast & Lightweight)' },
+  { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+  { id: 'gemini-2.0-flash-lite', label: 'Gemini 2.0 Flash-Lite' },
+  { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
+  { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+  { id: 'gemini-1.5-flash-8b', label: 'Gemini 1.5 Flash-8B' },
+];
 
 document.addEventListener('DOMContentLoaded', async () => {
   const apiKeyInput = document.getElementById('apiKey') as HTMLInputElement;
   const toggleApiKeyBtn = document.getElementById('toggleApiKey') as HTMLButtonElement;
   const eyeIcon = document.getElementById('eyeIcon') as unknown as SVGElement;
   const modelSelect = document.getElementById('modelSelect') as HTMLSelectElement;
+  const refreshModelsBtn = document.getElementById('refreshModelsBtn') as HTMLButtonElement;
   const fontSelect = document.getElementById('fontSelect') as HTMLSelectElement;
   const languageSelect = document.getElementById('languageSelect') as HTMLSelectElement;
   const autoScrollCheck = document.getElementById('autoScrollCheck') as HTMLInputElement;
@@ -23,13 +35,51 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.className = `font-${font}`;
   }
 
+  function setModelOptions(modelsList: { id: string; label?: string; displayName?: string }[], selectedValue?: string) {
+    if (!modelSelect) return;
+    const currentVal = selectedValue || modelSelect.value || 'gemini-2.5-flash';
+    modelSelect.innerHTML = '';
+
+    const seen = new Set<string>();
+    for (const item of modelsList) {
+      if (!item.id || seen.has(item.id)) continue;
+      seen.add(item.id);
+      const opt = document.createElement('option');
+      opt.value = item.id;
+      opt.textContent = item.label || item.displayName || item.id;
+      if (item.id === currentVal) {
+        opt.selected = true;
+      }
+      modelSelect.appendChild(opt);
+    }
+
+    // If currentVal is not in the list, append it as custom option
+    if (currentVal && !seen.has(currentVal)) {
+      const opt = document.createElement('option');
+      opt.value = currentVal;
+      opt.textContent = `${currentVal} (Custom)`;
+      opt.selected = true;
+      modelSelect.insertBefore(opt, modelSelect.firstChild);
+    }
+  }
+
+  // Initial population of known models
+  setModelOptions(KNOWN_MODELS);
+
   // Load existing settings
   const settings = await getSettings();
+  let currentModel = settings.model || 'gemini-2.5-flash';
+
+  // Migrate old non-existent models
+  if (currentModel === 'gemini-3.6-flash' || currentModel === 'gemini-3.6-pro') {
+    currentModel = 'gemini-2.5-flash';
+  }
+
   if (apiKeyInput && settings.apiKey) {
     apiKeyInput.value = settings.apiKey;
   }
-  if (modelSelect && settings.model) {
-    modelSelect.value = settings.model;
+  if (modelSelect) {
+    setModelOptions(KNOWN_MODELS, currentModel);
   }
   if (fontSelect && settings.fontFamily) {
     fontSelect.value = settings.fontFamily;
@@ -101,6 +151,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     feedbackBanner.classList.remove('hidden');
   }
 
+  // Fetch / Refresh available models from Gemini API
+  async function handleFetchModels(silent = false) {
+    const key = apiKeyInput.value.trim();
+    if (!key) {
+      if (!silent) showBanner(false, 'Please enter a Gemini API Key first to fetch available models.');
+      return;
+    }
+
+    if (refreshModelsBtn) {
+      refreshModelsBtn.disabled = true;
+      refreshModelsBtn.textContent = '⏳ Loading...';
+    }
+
+    try {
+      const fetched = await listAvailableGeminiModels(key);
+      if (fetched.length > 0) {
+        const formatted = fetched.map((m) => ({
+          id: m.id,
+          label: `${m.displayName || m.id}${m.id.includes('2.5-flash') ? ' (Recommended)' : ''}`,
+        }));
+        setModelOptions(formatted, modelSelect.value);
+        if (!silent) {
+          showBanner(true, `Successfully loaded ${fetched.length} available models from Gemini API.`);
+        }
+      } else if (!silent) {
+        showBanner(false, 'No models found supporting generateContent for this key.');
+      }
+    } catch (err: any) {
+      if (!silent) {
+        showBanner(false, `Could not fetch models: ${err?.message || err}`);
+      }
+    } finally {
+      if (refreshModelsBtn) {
+        refreshModelsBtn.disabled = false;
+        refreshModelsBtn.textContent = '🔄 Fetch Models';
+      }
+    }
+  }
+
+  if (refreshModelsBtn) {
+    refreshModelsBtn.addEventListener('click', () => handleFetchModels(false));
+  }
+
   // Test Connection
   testBtn.addEventListener('click', async () => {
     const key = apiKeyInput.value.trim();
@@ -114,7 +207,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const res = await testGeminiApiKey(key, model);
       showBanner(res.success, res.message);
       if (res.success) {
-        // Also auto-save valid settings
+        // Auto-save valid settings
         await saveSettings({
           apiKey: key,
           model,
@@ -122,6 +215,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           language: languageSelect.value as any,
           autoScroll: autoScrollCheck.checked,
         });
+        // Auto-fetch updated models list in the background
+        handleFetchModels(true).catch(() => {});
       }
     } catch (err: any) {
       showBanner(false, `Error: ${err?.message || err}`);

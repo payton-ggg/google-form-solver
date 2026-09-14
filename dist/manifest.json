@@ -2,7 +2,7 @@
 	"manifest_version": 3,
 	"name": "FormIQ — AI Solver for Google Forms",
 	"version": "1.0.0",
-	"description": "Smart AI assistant powered by Google Gemini 3.6 to automatically solve and explain questions in Google Forms",
+	"description": "Smart AI assistant powered by Google Gemini to automatically solve and explain questions in Google Forms",
 	"permissions": ["storage", "activeTab"],
 	"host_permissions": [
 		"https://docs.google.com/forms/*",
