@@ -45,7 +45,7 @@
         "icons/*"
       ],
       "matches": [
-        "https://docs.google.com/forms/*"
+        "https://docs.google.com/*"
       ]
     }
   ],
