@@ -1,59 +1,69 @@
-/* Forms Helper Injected Styles (Native Google Forms Material Design) */
+/* Modern AI Forms Assistant Styles (Linear / Raycast / Apple inspired modern aesthetic) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* 1. Question Action Button */
 .ai-solver-btn-wrapper {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   position: relative;
-  z-index: 5;
+  z-index: 10;
 }
 
 .ai-solver-solve-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  background-color: #f8f9fa;
-  color: #3c4043 !important;
-  border: 1px solid #dadce0;
-  padding: 5px 12px;
+  gap: 6px;
+  background: #0f172a;
+  color: #f8fafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 14px;
   font-size: 12px;
   font-weight: 500;
-  font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  border-radius: 6px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
 
 .ai-solver-solve-btn:hover {
-  background-color: #f1f3f4;
-  border-color: #c6c9cc;
-  color: #202124 !important;
-  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.15);
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .ai-solver-solve-btn:active {
-  background-color: #e8eaed;
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .ai-solver-solve-btn.loading {
-  background-color: #f1f3f4;
-  color: #70757a !important;
+  background: #334155;
+  color: #94a3b8 !important;
   cursor: wait;
+  transform: none;
 }
 
 .ai-solver-icon {
-  color: #5f6368;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.ai-solver-solve-btn:hover .ai-solver-icon {
+  color: #60a5fa;
 }
 
 .ai-solver-spinner {
   width: 12px;
   height: 12px;
-  border: 2px solid #dadce0;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  border-top-color: #1a73e8;
-  animation: ai-solver-spin 0.8s linear infinite;
+  border-top-color: #60a5fa;
+  animation: ai-solver-spin 0.7s linear infinite;
   display: inline-block;
 }
 
@@ -61,27 +71,27 @@
   to { transform: rotate(360deg); }
 }
 
-/* 2. Explanation Card (Clean Material / Google Classroom Note style) */
+/* 2. Modern Explanation Card */
 .ai-solver-card {
-  margin-top: 12px;
+  margin-top: 14px;
   background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-left: 4px solid #1a73e8;
-  border-radius: 8px;
-  padding: 12px 16px;
-  color: #202124;
-  font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  color: #0f172a;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 13px;
-  line-height: 1.5;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  animation: ai-solver-fade-in 0.2s ease-out;
+  line-height: 1.6;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  animation: ai-solver-slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  -webkit-font-smoothing: antialiased;
 }
 
-@keyframes ai-solver-fade-in {
+@keyframes ai-solver-slide-in {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -93,74 +103,89 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #f1f3f4;
-  padding-bottom: 6px;
-  margin-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .ai-solver-card-title {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: 500;
+  gap: 8px;
+  font-weight: 600;
   font-size: 13px;
-  color: #202124;
+  color: #0f172a;
 }
 
 .ai-solver-confidence-badge {
-  background: #e6f4ea;
-  border: 1px solid #ceead6;
-  color: #137333;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #059669;
   font-size: 11px;
-  font-weight: 500;
-  padding: 1px 6px;
-  border-radius: 4px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.ai-solver-confidence-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
 }
 
 .ai-solver-card-close {
   background: transparent;
   border: none;
-  color: #5f6368;
+  color: #94a3b8;
   cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 4px;
+  padding: 4px 6px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
-  font-size: 14px;
-  line-height: 1;
-  transition: background-color 0.15s;
+  justify-content: center;
+  transition: all 0.15s;
 }
 
 .ai-solver-card-close:hover {
-  background-color: #f1f3f4;
-  color: #202124;
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
+/* Answer Highlight Box */
 .ai-solver-selected-answer {
-  background: #f8f9fa;
-  border-radius: 4px;
-  padding: 6px 10px;
-  margin-bottom: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #10b981;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
   font-size: 13px;
-  border: 1px solid #f1f3f4;
 }
 
 .ai-solver-selected-answer-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: #137333;
-  margin-bottom: 2px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #059669;
+  margin-bottom: 3px;
 }
 
 .ai-solver-selected-answer-value {
-  color: #202124;
-  font-weight: 500;
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 13.5px;
 }
 
 .ai-solver-explanation-body {
-  color: #3c4043;
+  color: #334155;
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.65;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -170,104 +195,117 @@
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 8px;
-  padding-top: 6px;
-  border-top: 1px solid #f1f3f4;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
 }
 
 .ai-solver-action-btn {
-  background: #ffffff;
-  border: 1px solid #dadce0;
-  color: #5f6368;
-  padding: 3px 8px;
-  font-size: 11px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 5px 10px;
+  font-size: 11.5px;
   font-weight: 500;
-  border-radius: 4px;
+  font-family: inherit;
+  border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  transition: all 0.15s;
+  gap: 5px;
+  transition: all 0.15s ease;
 }
 
 .ai-solver-action-btn:hover {
-  background: #f8f9fa;
-  border-color: #c6c9cc;
-  color: #202124;
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* 3. Floating Action Bar (Clean subtle Material dock) */
+/* 3. Floating Modern Island Dock */
 .ai-solver-floating-bar {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #ffffff;
-  border: 1px solid #dadce0;
-  border-radius: 24px;
-  padding: 6px 12px;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 30px;
+  padding: 6px 14px 6px 16px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 2px 10px rgba(60, 64, 67, 0.18);
+  gap: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
   z-index: 99999;
-  font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  animation: ai-solver-slide-up 0.2s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  animation: ai-solver-dock-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-font-smoothing: antialiased;
 }
 
-@keyframes ai-solver-slide-up {
+@keyframes ai-solver-dock-in {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(16px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 .ai-solver-bar-brand {
   display: flex;
   align-items: center;
-  gap: 5px;
-  color: #5f6368;
-  font-weight: 500;
-  font-size: 12px;
-  padding-right: 6px;
-  border-right: 1px solid #e0e0e0;
+  gap: 6px;
+  color: #f8fafc;
+  font-weight: 600;
+  font-size: 12.5px;
+  padding-right: 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .ai-solver-solve-all-btn {
-  background: #1a73e8;
+  background: #2563eb;
   color: #ffffff;
-  border: none;
-  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 14px;
   font-size: 12px;
-  font-weight: 500;
-  border-radius: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 20px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  transition: background-color 0.15s, box-shadow 0.15s;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ai-solver-solve-all-btn:hover {
-  background: #1557b0;
-  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
+}
+
+.ai-solver-solve-all-btn:active {
+  transform: translateY(0);
 }
 
 .ai-solver-solve-all-btn:disabled {
-  background: #dadce0;
-  color: #80868b;
+  background: #334155;
+  color: #64748b;
   cursor: not-allowed;
+  transform: none;
   box-shadow: none;
 }
 
 .ai-solver-progress-bar-container {
-  width: 70px;
+  width: 80px;
   height: 4px;
-  background: #e8eaed;
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
   overflow: hidden;
   display: none;
 }
@@ -275,62 +313,89 @@
 .ai-solver-progress-bar-fill {
   height: 100%;
   width: 0%;
-  background: #1a73e8;
+  background: linear-gradient(90deg, #60a5fa, #38bdf8);
   transition: width 0.2s ease;
 }
 
+/* Modern Scroll Toggle Switch */
 .ai-solver-scroll-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  color: #5f6368;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #cbd5e1;
   cursor: pointer;
   user-select: none;
-  padding: 0 4px;
   transition: color 0.15s;
 }
 
 .ai-solver-scroll-toggle:hover {
-  color: #202124;
+  color: #ffffff;
 }
 
 .ai-solver-scroll-toggle input[type="checkbox"] {
-  accent-color: #1a73e8;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px;
+  height: 16px;
+  background: #334155;
+  border-radius: 16px;
+  position: relative;
   cursor: pointer;
-  width: 13px;
-  height: 13px;
+  outline: none;
+  transition: background-color 0.2s;
   margin: 0;
+}
+
+.ai-solver-scroll-toggle input[type="checkbox"]::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.ai-solver-scroll-toggle input[type="checkbox"]:checked {
+  background: #2563eb;
+}
+
+.ai-solver-scroll-toggle input[type="checkbox"]:checked::after {
+  transform: translateX(12px);
 }
 
 .ai-solver-floating-close {
   background: transparent;
   border: none;
-  color: #5f6368;
+  color: #64748b;
   cursor: pointer;
   padding: 4px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.15s;
+  transition: all 0.15s;
 }
 
 .ai-solver-floating-close:hover {
-  background-color: #f1f3f4;
-  color: #202124;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-/* Error Alert */
+/* Error Card */
 .ai-solver-error-card {
-  background: #fdf2f2;
-  border: 1px solid #f8b4b4;
-  border-left: 4px solid #e02424;
-  color: #9b1c1c;
-  border-radius: 6px;
-  padding: 8px 12px;
-  margin-top: 8px;
-  font-size: 12px;
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-left: 3px solid #f56565;
+  color: #9b2c2c;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 10px;
+  font-size: 12.5px;
   display: flex;
   flex-direction: column;
   gap: 4px;
