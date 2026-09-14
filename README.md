@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Google Forms AI Solver (Chrome Extension)
 
-## Getting Started
+Умное расширение для браузера Google Chrome (Manifest V3) на базе **Google Gemini AI**, которое автоматически находит правильные ответы и пошагово объясняет решения в Google Формах.
 
-First, run the development server:
+---
 
+## ✨ Возможности
+
+- 🔑 **Подключение Gemini API**: Ввод и надежное сохранение ключа через всплывающее окно настроек (`chrome.storage.sync`) с моментальной проверкой соединения.
+- ⚡ **Выбор модели**:
+  - `gemini-3.6-flash` — сверхбыстрая и точная (рекомендуется по умолчанию)
+  - `gemini-3.6-pro` — максимальная глубина анализа для сложных олимпиадных тестов
+  - `gemini-2.5-flash` / `gemini-1.5-flash` — предыдущие поколения
+- 🖼️ **Мультимодальность**: Поддержка вопросов с графиками, схемами, формулами и картинками (автоматическая конвертация в Base64).
+- 🔘 **Поддержка всех типов вопросов Google Forms**:
+  - Одиночный выбор (Радиокнопки `radio`)
+  - Множественный выбор (Чекбоксы `checkbox`)
+  - Краткий ответ (`input[type="text"]`)
+  - Развернутый текст (`textarea`)
+  - Выпадающий список (`dropdown / listbox`)
+- 💡 **Пошаговое объяснение**: Интерактивная карточка под вопросом с уровнем уверенности (Confidence %), обоснованием ответа и кнопкой быстрого копирования.
+- 🪄 **Режим «Решить всё»**: Плавающая панель с кнопкой для автоматического последовательного решения всех вопросов формы.
+
+---
+
+## 🛠️ Сборка расширения
+
+### 1. Установка зависимостей
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Сборка проекта
+Для создания готового расширения в папке `dist/`:
+```bash
+npm run build
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Для сборки с автообновлением при изменении файлов (режим разработки):
+```bash
+npm run watch
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📥 Установка расширения в браузер
 
-To learn more about Next.js, take a look at the following resources:
+1. Откройте браузер **Google Chrome** (или Brave, Microsoft Edge, Яндекс.Браузер).
+2. Перейдите по адресу:
+   ```
+   chrome://extensions
+   ```
+3. В правом верхнем углу включите переключатель **«Режим разработчика»** (Developer mode).
+4. В левом верхнем углу нажмите кнопку **«Загрузить распакованное расширение»** (Load unpacked).
+5. Выберите папку **`dist`** внутри этого проекта (`c:\Users\plato\Desktop\archive\ai-solver\dist`).
+6. Расширение **Google Forms AI Solver** появится в списке установленных!
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## ⚙️ Настройка API ключа
 
-## Deploy on Vercel
+1. Получите бесплатный ключ Gemini API на [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Нажмите на иконку пазла (Расширения) в правом верхнем углу браузера и закрепите **Forms AI Solver**.
+3. Нажмите на иконку расширения, вставьте ваш ключ в поле **Gemini API Key**.
+4. Нажмите **⚡ Проверить подключение** и затем **Сохранить**.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📝 Как использовать
+
+1. Откройте любую **Google Форму** (`https://docs.google.com/forms/...`).
+2. Возле каждого вопроса появится кнопка **«✨ AI Решить»**.
+3. При нажатии расширение:
+   - Отправит вопрос и варианты в Gemini API.
+   - Автоматически нажмет на правильный вариант или введет текст.
+   - Покажет блок с подробным объяснением решения под вопросом.
+4. В правом нижнем углу доступна кнопка **«✨ Решить всю форму»**, которая решит весь тест автоматически.

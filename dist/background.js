@@ -8,7 +8,7 @@ chrome.runtime.onInstalled.addListener((e) => {
 	], (e) => {
 		chrome.storage.sync.set({
 			apiKey: e.apiKey || "",
-			model: e.model || "gemini-2.5-flash",
+			model: e.model || "gemini-3.6-flash",
 			language: e.language || "auto",
 			autoScroll: typeof e.autoScroll != "boolean" || e.autoScroll
 		});

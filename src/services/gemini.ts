@@ -10,7 +10,7 @@ export interface GeminiTestResult {
 /**
  * Quick validation of API key and selected model against Google Gemini API
  */
-export async function testGeminiApiKey(apiKey: string, model: GeminiModel = 'gemini-2.5-flash'): Promise<GeminiTestResult> {
+export async function testGeminiApiKey(apiKey: string, model: GeminiModel = 'gemini-3.6-flash'): Promise<GeminiTestResult> {
   if (!apiKey || apiKey.trim() === '') {
     return { success: false, message: 'Ключ API не указан. Введите Gemini API Key.' };
   }
@@ -68,7 +68,7 @@ export async function solveGoogleFormQuestion(
     throw new Error('API ключ Gemini не установлен. Откройте настройки расширения в панели браузера и введите ключ.');
   }
 
-  const model = settings.model || 'gemini-2.5-flash';
+  const model = settings.model || 'gemini-3.6-flash';
   const endpoint = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
 
   // Build the prompt parts
