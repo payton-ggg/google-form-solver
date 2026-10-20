@@ -14,6 +14,16 @@ export interface GeminiModelInfo {
   supportedMethods: string[];
 }
 
+export class GeminiQuotaError extends Error {
+  isQuotaExceeded = true;
+  model: string;
+  constructor(message: string, model: string) {
+    super(message);
+    this.name = 'GeminiQuotaError';
+    this.model = model;
+  }
+}
+
 /**
  * Checks whether a model is actually supported for text-based form solving
  * (filtering out zero-quota models, audio/TTS, embeddings, image/video generators, and specialized preview agents).
@@ -214,6 +224,21 @@ export async function solveGoogleFormQuestion(
       ? 'Provide the explanation in English.'
       : 'Provide the explanation in the same language as the question.';
 
+  let typeSpecificInstructions = '';
+  if (question.type === 'checkbox') {
+    typeSpecificInstructions = `
+CRITICAL INSTRUCTION FOR MULTIPLE-CHOICE (CHECKBOX):
+- THIS QUESTION TYPE ALLOWS AND EXPECTS MULTIPLE CORRECT ANSWERS.
+- DO NOT PICK JUST ONE OPTION if multiple options are valid/correct!
+- Carefully evaluate EACH option independently.
+- If 2, 3, or more options are correct, you MUST return ALL their indices in "selectedIndices" (e.g. [0, 2] or [0, 1, 3]) and their full texts in "selectedTexts".
+- Returning only 1 option when multiple options are correct is strictly penalized.`;
+  } else if (question.type === 'radio' || question.type === 'dropdown') {
+    typeSpecificInstructions = `
+INSTRUCTION FOR SINGLE-CHOICE (RADIO/DROPDOWN):
+- Select exactly ONE best option in "selectedIndices" (e.g. [1]) and its text in "selectedTexts".`;
+  }
+
   const systemInstructions = `You are an expert AI assistant dedicated to accurately solving tests and questionnaires in Google Forms.
 Your task is to analyze the question (including attached images, if any), the answer options, and determine the exact correct answer(s).
 
@@ -221,10 +246,11 @@ Question Details:
 - Type: ${question.type} (radio: single choice, checkbox: multiple choices, text: short answer, paragraph: long answer, dropdown: select dropdown)
 - Question title: "${question.title}"
 ${optionsText ? `- Available options:\n${optionsText}` : '- Free text input field'}
+${typeSpecificInstructions}
 
 Requirements:
-1. For "radio" and "dropdown": choose exactly 1 correct index in "selectedIndices" (e.g. [0]) and its text in "selectedTexts".
-2. For "checkbox": choose ALL correct indices in "selectedIndices" (e.g. [0, 2]) and their texts in "selectedTexts".
+1. For "checkbox": Carefully evaluate all options. Select ALL correct and applicable indices in "selectedIndices" (e.g. [0, 2]) and their exact texts in "selectedTexts".
+2. For "radio" and "dropdown": choose exactly 1 correct index in "selectedIndices" (e.g. [0]) and its text in "selectedTexts".
 3. For "text" and "paragraph": formulate the most precise and concise answer in "textAnswer".
 4. Provide a "confidence" score between 0 and 100.
 5. Write an "explanation" — a clear, step-by-step reasoning explaining why this answer is correct. ${languagePrompt}
@@ -264,11 +290,22 @@ Return the response STRICTLY as valid JSON matching this schema:
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
       const msg = errData?.error?.message || `HTTP ${response.status}: ${response.statusText}`;
+
+      const isQuota =
+        response.status === 429 ||
+        msg.includes('RESOURCE_EXHAUSTED') ||
+        msg.toLowerCase().includes('quota') ||
+        msg.toLowerCase().includes('rate limit');
+
+      if (isQuota) {
+        throw new GeminiQuotaError(
+          `Quota or rate limit reached for model "${model}". Please select another model to continue. (${msg})`,
+          model
+        );
+      }
+
       if (response.status === 400 || response.status === 403) {
         throw new Error(`Gemini API access error (${response.status}): ${msg}. Please check your API key.`);
-      }
-      if (response.status === 429) {
-        throw new Error('Gemini API rate limit exceeded. Please wait a few seconds.');
       }
       throw new Error(`Gemini API error: ${msg}`);
     }

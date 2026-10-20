@@ -232,8 +232,119 @@ export function renderErrorCard(container: HTMLElement, errorMessage: string) {
 	container.appendChild(errorCard);
 }
 
+export const SUPPORTED_MODELS_UI = [
+  { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash (Recommended • 5 RPM)' },
+  { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash (Fast & Accurate • 5 RPM)' },
+  { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash-Lite (High Quota: 15 RPM / 500 RPD)' },
+  { id: 'gemini-3-flash', label: 'Gemini 3 Flash (5 RPM / 20 RPD)' },
+  { id: 'gemini-3.1-flash-lite', label: 'Gemini 3.1 Flash-Lite (High Quota: 15 RPM / 500 RPD)' },
+  { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (5 RPM / 20 RPD)' },
+  { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite (Fast • 10 RPM / 20 RPD)' },
+  { id: 'gemma-4-26b', label: 'Gemma 4 26B (High Speed • 30 RPM)' },
+  { id: 'gemma-4-31b', label: 'Gemma 4 31B (High Speed • 30 RPM)' },
+];
+
 /**
- * Injects modern floating dock into page with auto-scroll toggle and logo
+ * Displays an interactive Quota Exceeded dialog directly on the page,
+ * allowing the user to switch to another model and resume solving.
+ */
+export function showQuotaExceededModal({
+  currentModel,
+  onSwitchModelAndResume,
+  onCancel,
+}: {
+  currentModel: string;
+  onSwitchModelAndResume: (newModel: string) => Promise<void> | void;
+  onCancel?: () => void;
+}) {
+  const existingModal = document.getElementById('ai-solver-quota-modal');
+  if (existingModal) existingModal.remove();
+
+  const backdrop = document.createElement('div');
+  backdrop.id = 'ai-solver-quota-modal';
+  backdrop.className = 'ai-solver-modal-backdrop';
+
+  // Find another recommended model that is not the currently exhausted one
+  const nextModelOption =
+    SUPPORTED_MODELS_UI.find((m) => m.id !== currentModel)?.id || 'gemini-3.5-flash-lite';
+
+  const optionsHtml = SUPPORTED_MODELS_UI.map((m) => {
+    const isExhausted = m.id === currentModel;
+    const isSelected = m.id === nextModelOption;
+    return `<option value="${m.id}" ${isSelected ? 'selected' : ''} ${isExhausted ? 'disabled' : ''}>
+      ${m.label}${isExhausted ? ' (Exhausted / Исчерпана)' : ''}
+    </option>`;
+  }).join('');
+
+  backdrop.innerHTML = `
+    <div class="ai-solver-modal-dialog">
+      <div class="ai-solver-modal-header">
+        <div class="ai-solver-modal-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e11d48" stroke-width="2">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span>Rate Limit / Quota Exceeded</span>
+        </div>
+        <button type="button" class="ai-solver-modal-close" title="Close">✕</button>
+      </div>
+
+      <div class="ai-solver-modal-body">
+        <p class="ai-solver-modal-desc">
+          У модели <b>${escapeHtml(currentModel)}</b> исчерпан лимит запросов или квота (429 / Resource Exhausted).
+          Чтобы продолжить решение без потери прогресса, выберите другую модель:
+        </p>
+
+        <div class="ai-solver-modal-select-wrapper">
+          <label for="ai-solver-quota-model-select">Выберите другую модель:</label>
+          <select id="ai-solver-quota-model-select" class="ai-solver-modal-select">
+            ${optionsHtml}
+          </select>
+        </div>
+      </div>
+
+      <div class="ai-solver-modal-footer">
+        <button type="button" class="ai-solver-modal-btn secondary cancel-btn">Отмена</button>
+        <button type="button" class="ai-solver-modal-btn primary continue-btn">
+          <span>⚡ Сменить модель и продолжить</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(backdrop);
+
+  const select = backdrop.querySelector('#ai-solver-quota-model-select') as HTMLSelectElement;
+  const continueBtn = backdrop.querySelector('.continue-btn') as HTMLButtonElement;
+  const cancelBtn = backdrop.querySelector('.cancel-btn') as HTMLButtonElement;
+  const closeBtn = backdrop.querySelector('.ai-solver-modal-close') as HTMLButtonElement;
+
+  const close = () => {
+    backdrop.remove();
+  };
+
+  closeBtn.addEventListener('click', () => {
+    close();
+    onCancel?.();
+  });
+  cancelBtn.addEventListener('click', () => {
+    close();
+    onCancel?.();
+  });
+
+  continueBtn.addEventListener('click', async () => {
+    const chosenModel = select.value;
+    continueBtn.disabled = true;
+    continueBtn.innerHTML = '<span>Переключение...</span>';
+    await saveSettings({ model: chosenModel as any });
+    close();
+    await onSwitchModelAndResume(chosenModel);
+  });
+}
+
+/**
+ * Injects modern floating dock into page with auto-scroll toggle, skip answered toggle, model selector and logo
  */
 export async function injectFloatingToolbar(
 	onSolveAll: (
@@ -267,6 +378,20 @@ export async function injectFloatingToolbar(
       <span class="btn-text">Solve All</span>
     </button>
 
+    <div class="ai-solver-dock-model-wrapper" title="Active Model">
+      <select id="ai-solver-dock-model" class="ai-solver-dock-model-select">
+        ${SUPPORTED_MODELS_UI.map(
+          (m) =>
+            `<option value="${m.id}" ${m.id === currentSettings.model ? "selected" : ""}>${m.label}</option>`,
+        ).join("")}
+      </select>
+    </div>
+
+    <label class="ai-solver-scroll-toggle" title="Skip already answered questions">
+      <input type="checkbox" id="ai-solver-skip-check" ${currentSettings.skipAnswered !== false ? "checked" : ""}>
+      <span>Skip answered</span>
+    </label>
+
     <label class="ai-solver-scroll-toggle" title="Smooth auto-scroll to current question">
       <input type="checkbox" id="ai-solver-scroll-check" ${currentSettings.autoScroll ? "checked" : ""}>
       <span>Auto-scroll</span>
@@ -284,6 +409,12 @@ export async function injectFloatingToolbar(
 	const solveAllBtn = bar.querySelector(
 		"#ai-solver-solve-all",
 	) as HTMLButtonElement;
+	const dockModelSelect = bar.querySelector(
+		"#ai-solver-dock-model",
+	) as HTMLSelectElement;
+	const skipCheck = bar.querySelector(
+		"#ai-solver-skip-check",
+	) as HTMLInputElement;
 	const scrollCheck = bar.querySelector(
 		"#ai-solver-scroll-check",
 	) as HTMLInputElement;
@@ -297,10 +428,35 @@ export async function injectFloatingToolbar(
 		".ai-solver-floating-close",
 	) as HTMLButtonElement;
 
+	// Listen to model change directly from floating dock
+	dockModelSelect?.addEventListener("change", async () => {
+		await saveSettings({ model: dockModelSelect.value as any });
+	});
+
+	// Listen to skipAnswered toggle change
+	skipCheck?.addEventListener("change", async () => {
+		await saveSettings({ skipAnswered: skipCheck.checked });
+	});
+
 	// Listen to autoScroll toggle change
-	scrollCheck.addEventListener("change", async () => {
+	scrollCheck?.addEventListener("change", async () => {
 		await saveSettings({ autoScroll: scrollCheck.checked });
 	});
+
+	// Synchronize if settings change from popup
+	if (typeof chrome !== "undefined" && chrome.storage?.onChanged) {
+		chrome.storage.onChanged.addListener((changes) => {
+			if (changes.model && dockModelSelect && typeof changes.model.newValue === 'string') {
+				dockModelSelect.value = changes.model.newValue;
+			}
+			if (changes.skipAnswered && skipCheck) {
+				skipCheck.checked = Boolean(changes.skipAnswered.newValue);
+			}
+			if (changes.autoScroll && scrollCheck) {
+				scrollCheck.checked = Boolean(changes.autoScroll.newValue);
+			}
+		});
+	}
 
 	closeBtn.addEventListener("click", () => {
 		bar.remove();

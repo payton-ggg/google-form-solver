@@ -23,6 +23,7 @@ export interface ExtensionSettings {
 	autoScroll: boolean;
 	language: "auto" | "ru" | "en";
 	fontFamily: SupportedFont;
+	skipAnswered?: boolean;
 }
 
 export type QuestionType =

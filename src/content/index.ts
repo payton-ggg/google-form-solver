@@ -1,4 +1,4 @@
-import { parseQuestionContainer, getAllQuestionContainers } from './parser';
+import { parseQuestionContainer, getAllQuestionContainers, isQuestionAnswered } from './parser';
 import { applySolution } from './solver';
 import {
   injectQuestionButton,
@@ -6,6 +6,7 @@ import {
   renderExplanationCard,
   renderErrorCard,
   injectFloatingToolbar,
+  showQuotaExceededModal,
 } from './ui';
 import { getSettings } from '../services/storage';
 import { solveGoogleFormQuestion } from '../services/gemini';
@@ -59,7 +60,11 @@ function applyFontClass(font?: SupportedFont | string) {
   }
 }
 
-async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, index: number) {
+async function solveQuestion(
+  container: HTMLElement,
+  btn: HTMLButtonElement,
+  index: number
+): Promise<{ success: boolean; quotaExceeded?: boolean; error?: any }> {
   setButtonLoading(btn, true);
 
   try {
@@ -70,7 +75,7 @@ async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, ind
         'API key is not configured. Please open the FormIQ extension popup and enter your Gemini API key.'
       );
       setButtonLoading(btn, false);
-      return;
+      return { success: false };
     }
 
     // Auto scroll to question if enabled
@@ -83,7 +88,7 @@ async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, ind
     if (!parsedQuestion) {
       renderErrorCard(container, 'Could not detect the structure of this question.');
       setButtonLoading(btn, false);
-      return;
+      return { success: false };
     }
 
     // Solve via Gemini API
@@ -94,36 +99,86 @@ async function solveQuestion(container: HTMLElement, btn: HTMLButtonElement, ind
 
     // Display Explanation Card
     renderExplanationCard(container, result, parsedQuestion);
+    return { success: true };
   } catch (error: any) {
     console.error('Error during solve:', error);
+    const isQuota = !!error?.isQuotaExceeded;
     renderErrorCard(container, error?.message || 'An error occurred while generating the answer.');
+    return { success: false, quotaExceeded: isQuota, error };
   } finally {
     setButtonLoading(btn, false);
   }
 }
 
-async function solveAllQuestions(
-  _solveAllBtn: HTMLButtonElement,
-  onProgress: (current: number, total: number) => void
-) {
-  const containers = getAllQuestionContainers();
-  if (containers.length === 0) return;
+let isSolvingAllActive = false;
 
-  for (let i = 0; i < containers.length; i++) {
-    const container = containers[i];
-    const btn = container.querySelector('.ai-solver-solve-btn') as HTMLButtonElement;
-    if (btn) {
+async function solveAllQuestions(
+  solveAllBtn: HTMLButtonElement,
+  onProgress: (current: number, total: number) => void,
+  startIndex: number = 0
+) {
+  if (isSolvingAllActive && startIndex === 0) return;
+  isSolvingAllActive = true;
+
+  try {
+    const containers = getAllQuestionContainers();
+    if (containers.length === 0) return;
+
+    for (let i = startIndex; i < containers.length; i++) {
       const settings = await getSettings();
+      const shouldSkip = settings.skipAnswered !== false;
+
+      const container = containers[i];
+      const btn = container.querySelector('.ai-solver-solve-btn') as HTMLButtonElement;
+      if (!btn) {
+        onProgress(i + 1, containers.length);
+        continue;
+      }
+
+      // Check if question is already answered and should be skipped
+      if (shouldSkip) {
+        const parsed = await parseQuestionContainer(container, i);
+        if (parsed && isQuestionAnswered(parsed)) {
+          btn.innerHTML = '<span>✓ Answered</span>';
+          btn.title = 'Question already answered (skipped according to settings)';
+          onProgress(i + 1, containers.length);
+          continue;
+        }
+      }
+
       if (settings.autoScroll) {
         container.scrollIntoView({ behavior: 'smooth', block: 'center' });
         // Smooth scroll transition delay
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
-      await solveQuestion(container, btn, i);
+
+      const outcome = await solveQuestion(container, btn, i);
+
+      // If model quota is exhausted, STOP immediately and show recovery modal
+      if (outcome.quotaExceeded) {
+        isSolvingAllActive = false;
+        showQuotaExceededModal({
+          currentModel: settings.model || 'gemini-3.8-flash',
+          onSwitchModelAndResume: async (newModel) => {
+            console.log(`[FormIQ] Switched to ${newModel}. Resuming solve from question #${i + 1}...`);
+            await solveAllQuestions(solveAllBtn, onProgress, i);
+          },
+          onCancel: () => {
+            const textSpan = solveAllBtn.querySelector('.btn-text');
+            if (textSpan) {
+              textSpan.textContent = 'Solve All';
+            }
+          },
+        });
+        return;
+      }
+
+      onProgress(i + 1, containers.length);
+      // Slight pause to respect rate limits
+      await new Promise((resolve) => setTimeout(resolve, 600));
     }
-    onProgress(i + 1, containers.length);
-    // Slight pause to avoid hitting aggressive rate limits
-    await new Promise((resolve) => setTimeout(resolve, 600));
+  } finally {
+    isSolvingAllActive = false;
   }
 }
 
@@ -134,7 +189,17 @@ async function scanAndAttach() {
   const containers = getAllQuestionContainers();
   containers.forEach((container, index) => {
     injectQuestionButton(container, async (btn) => {
-      await solveQuestion(container, btn, index);
+      const outcome = await solveQuestion(container, btn, index);
+      if (outcome.quotaExceeded) {
+        const currentSettings = await getSettings();
+        showQuotaExceededModal({
+          currentModel: currentSettings.model || 'gemini-3.8-flash',
+          onSwitchModelAndResume: async (newModel) => {
+            console.log(`[FormIQ] Retrying question #${index + 1} with ${newModel}...`);
+            await solveQuestion(container, btn, index);
+          },
+        });
+      }
     });
   });
 

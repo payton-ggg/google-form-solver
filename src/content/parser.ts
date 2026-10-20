@@ -129,7 +129,31 @@ export async function parseQuestionContainer(container: HTMLElement, index: numb
   // Check for dropdown / listbox
   const listbox = container.querySelector('[role="listbox"]');
 
-  if (radioGroup || (radioItems.length > 0 && checkboxItems.length === 0)) {
+  if (checkboxItems.length > 0) {
+    type = 'checkbox';
+    const optionContainers = container.querySelectorAll('.docssharedWizToggleLabeledContainer, .Y6Holder, [role="checkbox"]');
+    const seenElements = new Set<Element>();
+    let optIndex = 0;
+
+    optionContainers.forEach((el) => {
+      const checkEl = el.getAttribute('role') === 'checkbox' ? el : el.querySelector('[role="checkbox"]') || el;
+      if (seenElements.has(checkEl)) return;
+      seenElements.add(checkEl);
+
+      let text = checkEl.getAttribute('data-value') || '';
+      if (!text) {
+        const label = el.querySelector('.aDTYNe, .ulDsOb, .bzfPab') || el;
+        text = (label.textContent || '').trim();
+      }
+
+      options.push({
+        index: optIndex++,
+        text: text || `Option ${optIndex}`,
+        element: checkEl as HTMLElement,
+        inputElement: checkEl as HTMLElement,
+      });
+    });
+  } else if (radioGroup || radioItems.length > 0) {
     type = 'radio';
     // Parse radio items
     const optionContainers = container.querySelectorAll('.docssharedWizToggleLabeledContainer, .nWQGrd, [role="radio"]');
@@ -156,30 +180,6 @@ export async function parseQuestionContainer(container: HTMLElement, index: numb
         text: text || `Option ${optIndex}`,
         element: radioEl as HTMLElement,
         inputElement: radioEl as HTMLElement,
-      });
-    });
-  } else if (checkboxItems.length > 0) {
-    type = 'checkbox';
-    const optionContainers = container.querySelectorAll('.docssharedWizToggleLabeledContainer, .Y6Holder, [role="checkbox"]');
-    const seenElements = new Set<Element>();
-    let optIndex = 0;
-
-    optionContainers.forEach((el) => {
-      const checkEl = el.getAttribute('role') === 'checkbox' ? el : el.querySelector('[role="checkbox"]') || el;
-      if (seenElements.has(checkEl)) return;
-      seenElements.add(checkEl);
-
-      let text = checkEl.getAttribute('data-value') || '';
-      if (!text) {
-        const label = el.querySelector('.aDTYNe, .ulDsOb, .bzfPab') || el;
-        text = (label.textContent || '').trim();
-      }
-
-      options.push({
-        index: optIndex++,
-        text: text || `Option ${optIndex}`,
-        element: checkEl as HTMLElement,
-        inputElement: checkEl as HTMLElement,
       });
     });
   } else if (paragraphInput) {
@@ -215,6 +215,56 @@ export async function parseQuestionContainer(container: HTMLElement, index: numb
     textInput,
     images,
   };
+}
+
+/**
+ * Checks whether a question has already been answered by the user or an earlier solve
+ */
+export function isQuestionAnswered(question: ParsedQuestion): boolean {
+  if (!question || !question.container) return false;
+  const container = question.container;
+
+  // 1. Radio: check if any radio button has aria-checked="true"
+  if (container.querySelector('[role="radio"][aria-checked="true"]')) {
+    return true;
+  }
+
+  // 2. Checkbox: check if any checkbox has aria-checked="true"
+  if (container.querySelector('[role="checkbox"][aria-checked="true"]')) {
+    return true;
+  }
+
+  // 3. Text or Paragraph input: check if value is non-empty
+  const textInput =
+    question.textInput ||
+    (container.querySelector('input.whsOnd, input[type="text"], textarea.KHxj8b, textarea') as
+      | HTMLInputElement
+      | HTMLTextAreaElement
+      | null);
+  if (textInput && textInput.value && textInput.value.trim().length > 0) {
+    return true;
+  }
+
+  // 4. Dropdown: check if an option is selected or text is chosen
+  const selectedDropdown = container.querySelector('[role="option"][aria-selected="true"]');
+  if (selectedDropdown) {
+    return true;
+  }
+
+  const listbox = container.querySelector('[role="listbox"]');
+  if (listbox) {
+    const activeText = (listbox.textContent || '').trim();
+    if (
+      activeText &&
+      !activeText.includes('Выбрать') &&
+      !activeText.includes('Choose') &&
+      !activeText.includes('Select')
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**

@@ -4,7 +4,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     console.log('Google Forms AI Solver installed.');
     // Set default storage values if not already present
-    chrome.storage.sync.get(['apiKey', 'model', 'language', 'autoScroll'], (result) => {
+    chrome.storage.sync.get(['apiKey', 'model', 'language', 'autoScroll', 'skipAnswered'], (result) => {
       const unsupported = [
         'gemini-2.5-pro',
         'gemini-3.1-pro',
@@ -24,6 +24,7 @@ chrome.runtime.onInstalled.addListener((details) => {
         model: validModel,
         language: result.language || 'auto',
         autoScroll: typeof result.autoScroll === 'boolean' ? result.autoScroll : true,
+        skipAnswered: typeof result.skipAnswered === 'boolean' ? result.skipAnswered : true,
       });
     });
   }

@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const refreshModelsBtn = document.getElementById('refreshModelsBtn') as HTMLButtonElement;
   const fontSelect = document.getElementById('fontSelect') as HTMLSelectElement;
   const languageSelect = document.getElementById('languageSelect') as HTMLSelectElement;
+  const skipAnsweredCheck = document.getElementById('skipAnsweredCheck') as HTMLInputElement;
   const autoScrollCheck = document.getElementById('autoScrollCheck') as HTMLInputElement;
   const testBtn = document.getElementById('testBtn') as HTMLButtonElement;
   const testSpinner = document.getElementById('testSpinner') as HTMLElement;
@@ -102,8 +103,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (languageSelect && settings.language) {
     languageSelect.value = settings.language;
   }
-  if (autoScrollCheck && typeof settings.autoScroll === 'boolean') {
-    autoScrollCheck.checked = settings.autoScroll;
+
+  if (skipAnsweredCheck) {
+    skipAnsweredCheck.checked = typeof settings.skipAnswered === 'boolean' ? settings.skipAnswered : true;
+    skipAnsweredCheck.addEventListener('change', async () => {
+      await saveSettings({ skipAnswered: skipAnsweredCheck.checked });
+    });
+  }
+  if (autoScrollCheck) {
+    if (typeof settings.autoScroll === 'boolean') {
+      autoScrollCheck.checked = settings.autoScroll;
+    }
+    autoScrollCheck.addEventListener('change', async () => {
+      await saveSettings({ autoScroll: autoScrollCheck.checked });
+    });
   }
 
   // Real-time font change
@@ -243,6 +256,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           fontFamily: (fontSelect?.value as SupportedFont) || 'outfit',
           language: languageSelect.value as any,
           autoScroll: autoScrollCheck.checked,
+          skipAnswered: skipAnsweredCheck ? skipAnsweredCheck.checked : true,
         });
         // Auto-fetch updated models list in the background
         handleFetchModels(true).catch(() => {});
@@ -262,6 +276,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const fontFamily = (fontSelect?.value as SupportedFont) || 'outfit';
     const language = languageSelect.value as any;
     const autoScroll = autoScrollCheck.checked;
+    const skipAnswered = skipAnsweredCheck ? skipAnsweredCheck.checked : true;
 
     await saveSettings({
       apiKey: key,
@@ -269,6 +284,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       fontFamily,
       language,
       autoScroll,
+      skipAnswered,
     });
 
     const originalText = saveBtn.querySelector('.btn-text')?.textContent || 'Save Settings';

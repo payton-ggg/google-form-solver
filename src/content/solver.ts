@@ -68,37 +68,44 @@ export async function applySolution(question: ParsedQuestion, result: GeminiSolv
         return true;
       }
     } else if (question.type === 'checkbox') {
-      let appliedCount = 0;
+      const targetIndices = new Set<number>();
 
-      // Handle by indices
-      if (result.selectedIndices && result.selectedIndices.length > 0) {
+      if (Array.isArray(result.selectedIndices) && result.selectedIndices.length > 0) {
         for (const idx of result.selectedIndices) {
           if (idx >= 0 && idx < question.options.length) {
-            const opt = question.options[idx];
-            const clickTarget = (opt.inputElement || opt.element) as HTMLElement;
-            // Only click if not already checked
-            const isChecked = clickTarget.getAttribute('aria-checked') === 'true';
-            if (!isChecked) {
-              simulateClick(clickTarget);
-            }
-            appliedCount++;
+            targetIndices.add(idx);
           }
         }
       }
 
-      // Handle by text if indices didn't match
-      if (appliedCount === 0 && result.selectedTexts && result.selectedTexts.length > 0) {
+      // Fallback matching by text
+      if (targetIndices.size === 0 && Array.isArray(result.selectedTexts) && result.selectedTexts.length > 0) {
         for (const text of result.selectedTexts) {
           const textLower = text.toLowerCase().trim();
-          const opt = question.options.find((o) => o.text.toLowerCase().trim() === textLower);
-          if (opt) {
-            const clickTarget = (opt.inputElement || opt.element) as HTMLElement;
-            const isChecked = clickTarget.getAttribute('aria-checked') === 'true';
-            if (!isChecked) {
-              simulateClick(clickTarget);
-            }
-            appliedCount++;
+          const foundIdx = question.options.findIndex((o) => o.text.toLowerCase().trim() === textLower);
+          if (foundIdx !== -1) {
+            targetIndices.add(foundIdx);
           }
+        }
+      }
+
+      let appliedCount = 0;
+      for (let i = 0; i < question.options.length; i++) {
+        const opt = question.options[i];
+        const clickTarget = (opt.inputElement || opt.element) as HTMLElement;
+        const isChecked = clickTarget.getAttribute('aria-checked') === 'true';
+        const shouldBeChecked = targetIndices.has(i);
+
+        if (shouldBeChecked && !isChecked) {
+          simulateClick(clickTarget);
+          await new Promise((r) => setTimeout(r, 80));
+          appliedCount++;
+        } else if (!shouldBeChecked && isChecked) {
+          // Deselect options that were previously checked but are not in the solution
+          simulateClick(clickTarget);
+          await new Promise((r) => setTimeout(r, 80));
+        } else if (shouldBeChecked && isChecked) {
+          appliedCount++;
         }
       }
 

@@ -4,7 +4,8 @@ chrome.runtime.onInstalled.addListener((e) => {
 		"apiKey",
 		"model",
 		"language",
-		"autoScroll"
+		"autoScroll",
+		"skipAnswered"
 	], (e) => {
 		let t = [
 			"gemini-2.5-pro",
@@ -22,7 +23,8 @@ chrome.runtime.onInstalled.addListener((e) => {
 			apiKey: e.apiKey || "",
 			model: r,
 			language: e.language || "auto",
-			autoScroll: typeof e.autoScroll != "boolean" || e.autoScroll
+			autoScroll: typeof e.autoScroll != "boolean" || e.autoScroll,
+			skipAnswered: typeof e.skipAnswered != "boolean" || e.skipAnswered
 		});
 	}));
 });

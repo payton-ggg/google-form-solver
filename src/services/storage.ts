@@ -6,6 +6,7 @@ const DEFAULT_SETTINGS: ExtensionSettings = {
   autoScroll: true,
   language: 'auto',
   fontFamily: 'outfit',
+  skipAnswered: true,
 };
 
 export async function getSettings(): Promise<ExtensionSettings> {
