@@ -1,58 +1,69 @@
 export type GeminiModel =
-  | 'gemini-3.8-flash'
-  | 'gemini-3.6-flash'
-  | 'gemini-3.5-flash-lite'
-  | 'gemini-3-flash'
-  | 'gemini-3.1-flash-lite'
-  | 'gemini-2.5-flash'
-  | 'gemini-2.5-flash-lite'
-  | 'gemma-4-26b'
-  | 'gemma-4-31b'
-  | (string & {});
+	| "gemini-3.8-flash"
+	| "gemini-3.6-flash"
+	| "gemini-3.5-flash-lite"
+	| "gemini-3-flash"
+	| "gemini-3.1-flash-lite"
+	| "gemini-2.5-flash"
+	| "gemini-2.5-flash-lite"
+	| "gemma-4-26b"
+	| "gemma-4-31b"
+	| (string & {});
 
-export type SupportedFont = 'outfit' | 'jakarta' | 'manrope' | 'space-grotesk' | 'inter';
+export type SupportedFont =
+	| "outfit"
+	| "jakarta"
+	| "manrope"
+	| "space-grotesk"
+	| "inter";
 
 export interface ExtensionSettings {
-  apiKey: string;
-  model: GeminiModel;
-  autoScroll: boolean;
-  language: 'auto' | 'ru' | 'en';
-  fontFamily: SupportedFont;
+	apiKey: string;
+	model: GeminiModel;
+	autoScroll: boolean;
+	language: "auto" | "ru" | "en";
+	fontFamily: SupportedFont;
 }
 
-export type QuestionType = 'radio' | 'checkbox' | 'text' | 'paragraph' | 'dropdown' | 'unknown';
+export type QuestionType =
+	| "radio"
+	| "checkbox"
+	| "text"
+	| "paragraph"
+	| "dropdown"
+	| "unknown";
 
 export interface ParsedOption {
-  index: number;
-  text: string;
-  element: HTMLElement;
-  inputElement?: HTMLElement | HTMLInputElement;
+	index: number;
+	text: string;
+	element: HTMLElement;
+	inputElement?: HTMLElement | HTMLInputElement;
 }
 
 export interface QuestionImage {
-  src: string;
-  alt?: string;
-  base64?: string;
-  mimeType?: string;
+	src: string;
+	alt?: string;
+	base64?: string;
+	mimeType?: string;
 }
 
 export interface ParsedQuestion {
-  id: string;
-  container: HTMLElement;
-  title: string;
-  type: QuestionType;
-  required: boolean;
-  options: ParsedOption[];
-  textInput?: HTMLInputElement | HTMLTextAreaElement;
-  images: QuestionImage[];
+	id: string;
+	container: HTMLElement;
+	title: string;
+	type: QuestionType;
+	required: boolean;
+	options: ParsedOption[];
+	textInput?: HTMLInputElement | HTMLTextAreaElement;
+	images: QuestionImage[];
 }
 
 export interface GeminiSolveResult {
-  questionType: QuestionType;
-  selectedIndices?: number[];
-  selectedTexts?: string[];
-  textAnswer?: string;
-  confidence: number;
-  explanation: string;
-  rawResponse?: string;
+	questionType: QuestionType;
+	selectedIndices?: number[];
+	selectedTexts?: string[];
+	textAnswer?: string;
+	confidence: number;
+	explanation: string;
+	rawResponse?: string;
 }
