@@ -3,14 +3,15 @@ import { testGeminiApiKey, listAvailableGeminiModels } from '../services/gemini'
 import { GeminiModel, SupportedFont } from '../types';
 
 const KNOWN_MODELS = [
-  { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (Fast, Recommended)' },
-  { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro (Highest Accuracy)' },
-  { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite (Fast & Lightweight)' },
-  { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
-  { id: 'gemini-2.0-flash-lite', label: 'Gemini 2.0 Flash-Lite' },
-  { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
-  { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
-  { id: 'gemini-1.5-flash-8b', label: 'Gemini 1.5 Flash-8B' },
+  { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash (Latest & Most Intelligent • 5 RPM)' },
+  { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash (Fast & Accurate • 5 RPM)' },
+  { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash-Lite (High Quota: 15 RPM / 500 RPD)' },
+  { id: 'gemini-3-flash', label: 'Gemini 3 Flash (5 RPM / 20 RPD)' },
+  { id: 'gemini-3.1-flash-lite', label: 'Gemini 3.1 Flash-Lite (High Quota: 15 RPM / 500 RPD)' },
+  { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (5 RPM / 20 RPD)' },
+  { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite (Fast • 10 RPM / 20 RPD)' },
+  { id: 'gemma-4-26b', label: 'Gemma 4 26B (High Speed • 30 RPM)' },
+  { id: 'gemma-4-31b', label: 'Gemma 4 31B (High Speed • 30 RPM)' },
 ];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -37,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function setModelOptions(modelsList: { id: string; label?: string; displayName?: string }[], selectedValue?: string) {
     if (!modelSelect) return;
-    const currentVal = selectedValue || modelSelect.value || 'gemini-2.5-flash';
+    const currentVal = selectedValue || modelSelect.value || 'gemini-3.8-flash';
     modelSelect.innerHTML = '';
 
     const seen = new Set<string>();
@@ -68,11 +69,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load existing settings
   const settings = await getSettings();
-  let currentModel = settings.model || 'gemini-2.5-flash';
+  let currentModel = settings.model || 'gemini-3.8-flash';
 
-  // Migrate old non-existent models
-  if (currentModel === 'gemini-3.6-flash' || currentModel === 'gemini-3.6-pro') {
-    currentModel = 'gemini-2.5-flash';
+  // Migrate deprecated or 0-quota unsupported models
+  const unsupportedModels = [
+    'gemini-2.5-pro',
+    'gemini-3.1-pro',
+    'gemini-4-argon',
+    'gemini-2.0-flash',
+    'gemini-2.0-flash-lite',
+    'gemini-2-flash',
+    'gemini-2-flash-lite',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro',
+    'gemini-1.5-flash-8b',
+  ];
+  if (unsupportedModels.includes(currentModel)) {
+    currentModel = 'gemini-3.8-flash';
   }
 
   if (apiKeyInput && settings.apiKey) {
@@ -167,10 +180,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const fetched = await listAvailableGeminiModels(key);
       if (fetched.length > 0) {
-        const formatted = fetched.map((m) => ({
-          id: m.id,
-          label: `${m.displayName || m.id}${m.id.includes('2.5-flash') ? ' (Recommended)' : ''}`,
-        }));
+        const formatted = fetched.map((m) => {
+          let badge = '';
+          if (m.id.includes('3.8-flash')) {
+            badge = ' (Recommended • 5 RPM)';
+          } else if (m.id.includes('3.5-flash-lite') || m.id.includes('3.1-flash-lite')) {
+            badge = ' (High Quota: 15 RPM)';
+          } else if (m.id.includes('3.6-flash')) {
+            badge = ' (Fast & Accurate • 5 RPM)';
+          } else if (m.id.includes('2.5-flash-lite')) {
+            badge = ' (Fast • 10 RPM)';
+          } else if (m.id.includes('2.5-flash')) {
+            badge = ' (5 RPM)';
+          } else if (m.id.includes('gemma')) {
+            badge = ' (High Speed • 30 RPM)';
+          }
+          return {
+            id: m.id,
+            label: `${m.displayName || m.id}${badge}`,
+          };
+        });
         setModelOptions(formatted, modelSelect.value);
         if (!silent) {
           showBanner(true, `Successfully loaded ${fetched.length} available models from Gemini API.`);

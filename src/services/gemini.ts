@@ -15,7 +15,69 @@ export interface GeminiModelInfo {
 }
 
 /**
- * Fetch all available models from Gemini API that support generateContent
+ * Checks whether a model is actually supported for text-based form solving
+ * (filtering out zero-quota models, audio/TTS, embeddings, image/video generators, and specialized preview agents).
+ */
+export function isSupportedFormModel(modelId: string): boolean {
+  const clean = modelId.toLowerCase().replace(/^models\//, '');
+
+  // Exclude non-text/specialized modalities and preview agents
+  const excludedKeywords = [
+    'tts',
+    'audio',
+    'transcribe',
+    'dialog',
+    'speech',
+    'embedding',
+    'embed',
+    'robotics',
+    'imagen',
+    'veo',
+    'banana',
+    'lyria',
+    'computer-use',
+    'deep-research',
+    'antigravity',
+  ];
+  if (excludedKeywords.some((kw) => clean.includes(kw))) {
+    return false;
+  }
+
+  // Exclude models known to have 0 quota or no public access in standard tiers
+  const zeroQuotaModels = [
+    'gemini-2.5-pro',
+    'gemini-3.1-pro',
+    'gemini-4-argon',
+    'gemini-2.0-flash',
+    'gemini-2.0-flash-lite',
+    'gemini-2-flash',
+    'gemini-2-flash-lite',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro',
+    'gemini-1.5-flash-8b',
+  ];
+  if (zeroQuotaModels.some((unsupported) => clean === unsupported || clean.startsWith(`${unsupported}-`))) {
+    return false;
+  }
+
+  return true;
+}
+
+const MODEL_PRIORITY: Record<string, number> = {
+  'gemini-3.8-flash': 100,
+  'gemini-3.6-flash': 90,
+  'gemini-3.5-flash-lite': 85,
+  'gemini-3-flash': 80,
+  'gemini-3-flash-preview': 79,
+  'gemini-3.1-flash-lite': 75,
+  'gemini-2.5-flash': 70,
+  'gemini-2.5-flash-lite': 65,
+  'gemma-4-26b': 50,
+  'gemma-4-31b': 49,
+};
+
+/**
+ * Fetch all available models from Gemini API that actually support generateContent for form solving
  */
 export async function listAvailableGeminiModels(apiKey: string): Promise<GeminiModelInfo[]> {
   if (!apiKey || apiKey.trim() === '') {
@@ -35,20 +97,30 @@ export async function listAvailableGeminiModels(apiKey: string): Promise<GeminiM
   const models = data?.models || [];
 
   return models
-    .filter((m: any) => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+    .filter(
+      (m: any) =>
+        Array.isArray(m.supportedGenerationMethods) &&
+        m.supportedGenerationMethods.includes('generateContent') &&
+        isSupportedFormModel(m.name || '')
+    )
     .map((m: any) => ({
       id: m.name ? m.name.replace(/^models\//, '') : '',
       displayName: m.displayName || m.name?.replace(/^models\//, '') || '',
       description: m.description || '',
       supportedMethods: m.supportedGenerationMethods || [],
     }))
-    .filter((m: GeminiModelInfo) => m.id.length > 0);
+    .filter((m: GeminiModelInfo) => m.id.length > 0)
+    .sort((a: GeminiModelInfo, b: GeminiModelInfo) => {
+      const pA = MODEL_PRIORITY[a.id] || 0;
+      const pB = MODEL_PRIORITY[b.id] || 0;
+      return pB - pA;
+    });
 }
 
 /**
  * Quick validation of API key and selected model against Google Gemini API
  */
-export async function testGeminiApiKey(apiKey: string, model: GeminiModel = 'gemini-2.5-flash'): Promise<GeminiTestResult> {
+export async function testGeminiApiKey(apiKey: string, model: GeminiModel = 'gemini-3.8-flash'): Promise<GeminiTestResult> {
   if (!apiKey || apiKey.trim() === '') {
     return { success: false, message: 'API key is missing. Please enter a valid Gemini API Key.' };
   }
@@ -107,7 +179,7 @@ export async function solveGoogleFormQuestion(
     throw new Error('Gemini API key is not configured. Please open FormIQ settings and enter your key.');
   }
 
-  const model = (settings.model || 'gemini-2.5-flash').replace(/^models\//, '');
+  const model = (settings.model || 'gemini-3.8-flash').replace(/^models\//, '');
   const endpoint = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
 
   // Build the prompt parts
