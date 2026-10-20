@@ -6,9 +6,21 @@ chrome.runtime.onInstalled.addListener((e) => {
 		"language",
 		"autoScroll"
 	], (e) => {
+		let t = [
+			"gemini-2.5-pro",
+			"gemini-3.1-pro",
+			"gemini-4-argon",
+			"gemini-2.0-flash",
+			"gemini-2.0-flash-lite",
+			"gemini-2-flash",
+			"gemini-2-flash-lite",
+			"gemini-1.5-flash",
+			"gemini-1.5-pro",
+			"gemini-1.5-flash-8b"
+		], n = typeof e.model == "string" ? e.model : "", r = n && !t.includes(n) ? n : "gemini-3.8-flash";
 		chrome.storage.sync.set({
 			apiKey: e.apiKey || "",
-			model: e.model && !e.model.includes("3.6") ? e.model : "gemini-2.5-flash",
+			model: r,
 			language: e.language || "auto",
 			autoScroll: typeof e.autoScroll != "boolean" || e.autoScroll
 		});
